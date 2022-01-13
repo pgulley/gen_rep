@@ -12,11 +12,36 @@ recorded_tasks = {}
 navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
 	mediaRecorder = new MediaRecorder(stream);
 	mediaRecorder.ondataavailable = function(e) {
-  		blob = new Blob([e.data], { 'type' : 'audio/ogg; codecs=opus' })
+  		blob = new Blob([e.data], { 'type' : 'audio/ogg;codecs=opus' })
   		recorded_tasks[active_task] = blob
-  		var blobURL = window.URL.createObjectURL(blob);
+  		s3_upload_loop(active_task)
 	}
 })
+
+
+function s3_upload_loop(task_id){
+	$.ajax({
+			url:window.location.href+"/get_s3_upload_url",
+			data:{task:task_id}
+	}).done(function(resp){
+
+		blobData = recorded_tasks[task_id]
+		
+		fetch(resp.uploadURL,{
+			method:"PUT",
+			body:blobData
+		}).then(function(resp){
+			if(resp.status == 200){
+				$.ajax({
+					url:window.location.href+"/put_job_record_ddb",
+					data:{location:resp.url.split("?")[0]}
+				}).done(function(resp){			
+					console.log("Finished upload loop")
+				})
+			}	
+		})
+	})
+}
 
 
 Vue.component('rec-task', {
@@ -57,16 +82,25 @@ Vue.component('rec-task', {
 })
 
 
-var app1 = new Vue({
-	el:"#recording-tasks",
-	data:{
-		tasklist:[
-			{ id:0, title: "This is a recording task", rec_time:1000},
-			{ id:1, title: "This is another one", rec_time:3000}
-		]
+get_tasks = function(){
+		$.ajax({
+			url:window.location.href+"/tasks"
+		}).done(function(resp){
+			console.log(resp)
+			var app1 = new Vue({
+				el:"#recording-tasks",
+				data:{
+				tasklist:resp.data
 
-	}
-})
+			}	
+		})
+		
+	})
+}
+get_tasks()
+
+
+
 
 
 

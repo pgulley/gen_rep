@@ -46,9 +46,9 @@ def get_s3_upload_url():
     hasher = hashids.Hashids()
     timehash = hasher.encode(int(time.time()*10))
     #For now, just upload a "task-hash.ogg" ie "1-kfjO1.ogg"
-    full_key = f"{task}-{timehash}.ogg"
+    full_key = f"{task}-{timehash}.wav"
     post_url = s3_client.generate_presigned_url("put_object",
-            {"Bucket":settings["AudioS3_Name"], "Key":full_key, "ContentType":"audio/ogg;codecs=opus"})
+            {"Bucket":settings["AudioS3_Name"], "Key":full_key, "ContentType":"audio/wav;codecs=0"})
     return {"uploadURL":post_url}
 
 

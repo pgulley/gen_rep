@@ -13,7 +13,7 @@ vueapp = null
 navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
 	mediaRecorder = new MediaRecorder(stream);
 	mediaRecorder.ondataavailable = function(e) {
-  		blob = new Blob([e.data], { 'type' : 'audio/ogg;codecs=opus' })
+  		blob = new Blob([e.data], { 'type' : 'audio/wav;codecs=0' })
   		recorded_tasks[active_task] = blob
   		
 	}

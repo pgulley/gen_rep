@@ -55,10 +55,12 @@ def get_s3_upload_url():
 @app.route("/put_job_record_ddb")
 def put_job_record_ddb():
     location = request.args.get("location")
+    task_id = request.args.get("task_id")
     item = {
         '_id':{"S": uuid.uuid1().hex},
         'user_id':{"S":"test_id"},
         'upload_location':{"S":location},
+        'task_id':{"S":task_id},
         'timestamp':{"N":f'{time.time()}'},
     }
     ddb_client.put_item(

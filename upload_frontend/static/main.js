@@ -8,13 +8,14 @@
 mediaRecorder = null
 active_task = null
 recorded_tasks = {}
+vueapp = null
 
 navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
 	mediaRecorder = new MediaRecorder(stream);
 	mediaRecorder.ondataavailable = function(e) {
   		blob = new Blob([e.data], { 'type' : 'audio/ogg;codecs=opus' })
   		recorded_tasks[active_task] = blob
-  		s3_upload_loop(active_task)
+  		
 	}
 })
 
@@ -34,7 +35,7 @@ function s3_upload_loop(task_id){
 			if(resp.status == 200){
 				$.ajax({
 					url:window.location.href+"/put_job_record_ddb",
-					data:{location:resp.url.split("?")[0]}
+					data:{location:resp.url.split("?")[0],task_id:active_task},
 				}).done(function(resp){			
 					console.log("Finished upload loop")
 				})
@@ -46,16 +47,23 @@ function s3_upload_loop(task_id){
 
 Vue.component('rec-task', {
   	props:["task"],
-  	template: `<div id="test_rec">
+  	template: `<div class="recording-task" v-bind:id=task.id>
 			<h2>{{ task.title }}</h2>
-			<button v-on:click="record">Record</button>
-			<button v-on:click="play">Play</button>
+			<button class="task-btn rec" v-on:click="record">
+				<div class="progress rec-bar" > </div><div class='btn-text'>Record</div>
+			</button>
+			<button class="task-btn play" v-on:click="play" disabled>
+				<div class="progress play-bar"> </div> <div class='btn-text'>Play</div>
+			</button>
+
+			<button class="task-btn upl" v-on:click="upload" disabled>Upload</button>
 
 		</div>`,
 	data:function(){
 		return {
 			id:this.task.id,
-			rec_time:this.rec_time
+			rec_time:this.task.rec_time,
+
 
 		}
 	},
@@ -64,10 +72,20 @@ Vue.component('rec-task', {
 			console.log(this.task.rec_time)
 			mediaRecorder.start()
 			active_task = this.id
+			$(`#${this.id}`).find(".progress.rec-bar").animate({
+				width:"100%"
+				}, parseInt(this.task.rec_time), 'linear', function(){
+					console.log(this)
+					$(this).css({'width':"0%"})
+				
+			})
 			setTimeout(this.stop_rec, this.task.rec_time)
 		},
 		stop_rec:function(){
 			mediaRecorder.stop()
+			//enable 'play' and 'upload' 
+			$(`#${this.id}`).find(".task-btn.play").prop('disabled', false)
+			$(`#${this.id}`).find(".task-btn.upl").prop('disabled', false)
 			console.log('ready')
 		
 		},
@@ -75,6 +93,16 @@ Vue.component('rec-task', {
 			var blobURL = window.URL.createObjectURL(recorded_tasks[this.task.id])
 			var audio0 = new Audio(blobURL)
 			audio0.play()
+			$(`#${this.id}`).find(".progress.play-bar").animate({
+				width:"100%"
+				}, parseInt(this.task.rec_time), 'linear', function(){
+					console.log(this)
+					$(this).css({'width':"0%"})
+				
+			})
+		},
+		upload:function(){
+			s3_upload_loop(this.task.id)
 		}
 	}
 	
@@ -83,18 +111,17 @@ Vue.component('rec-task', {
 
 
 get_tasks = function(){
-		$.ajax({
-			url:window.location.href+"/tasks"
-		}).done(function(resp){
-			console.log(resp)
-			var app1 = new Vue({
-				el:"#recording-tasks",
-				data:{
-				tasklist:resp.data
-
-			}	
+	$.ajax({
+		url:window.location.href+"/tasks"
+	}).done(function(resp){
+		console.log(resp)
+		var app1 = new Vue({
+			el:"#recording-tasks",
+			data:{
+			tasklist:resp.data
+			}
 		})
-		
+		vueapp = app1
 	})
 }
 get_tasks()

@@ -1,8 +1,17 @@
+body{
+	background: #6cb398;
+}
+
 .main{
 	margin: 10px;
 	padding: 10px;
 	background-color: grey;
 	
+}
+
+.heading{
+	margin: auto;
+	width: 95%;
 }
 
 h1{
@@ -19,7 +28,55 @@ thead{
 	font-weight: bold
 }
 
+ul{
+	padding: 0px;
+}
+
 #upload_spinner{
 	margin-left: 20px;
 	display: inline-block;
+}
+
+.recording-task{
+	width: 95%;
+	
+	background-color: #e8b688;
+	padding: 10px;
+	margin: auto;
+	margin-bottom: 10px;
+}
+
+.task-btn{
+	position: relative;
+	width: 100%;
+	margin-bottom: 2px;
+	font-size: 2em;
+	text-align: center;
+	font-family: sans-serif;
+	border: 1px solid black;
+	padding: 0px;
+
+}
+
+
+.progress{
+	width: 0%;
+	height: 100%;
+	position: absolute;
+	z-index: 1;
+
+}
+
+
+
+.progress.rec-bar{
+	background-color: red;
+}
+.progress.play-bar{
+	background-color: green;
+}
+
+.btn-text{
+	position: relative;
+	z-index: 2;
 }

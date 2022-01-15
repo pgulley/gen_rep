@@ -37,6 +37,7 @@ function s3_upload_loop(task_id){
 					url:window.location.href+"/put_job_record_ddb",
 					data:{location:resp.url.split("?")[0],task_id:active_task},
 				}).done(function(resp){			
+					$(`#${task_id}`).find(".task-btn.upl").prop('disabled', true)
 					console.log("Finished upload loop")
 				})
 			}	
@@ -63,8 +64,6 @@ Vue.component('rec-task', {
 		return {
 			id:this.task.id,
 			rec_time:this.task.rec_time,
-
-
 		}
 	},
 	methods:{
@@ -96,7 +95,7 @@ Vue.component('rec-task', {
 			$(`#${this.id}`).find(".progress.play-bar").animate({
 				width:"100%"
 				}, parseInt(this.task.rec_time), 'linear', function(){
-					console.log(this)
+
 					$(this).css({'width':"0%"})
 				
 			})

@@ -1,5 +1,6 @@
 body{
 	background: #6cb398;
+	font-family: 'Anton', sans-serif;
 }
 
 .main{
@@ -16,12 +17,14 @@ body{
 
 h1{
 	margin-left: 10px;
-}
+	font-weight: normal;
+}	
 
 h2{
-	
+	font-weight: normal;
 	margin-top: 10px;
 	margin-bottom: 10px;
+	display: inline-block;
 }
 
 thead{
@@ -58,6 +61,14 @@ ul{
 
 }
 
+.task-description{
+	font-family: 'Assistant', sans-serif;
+	margin-bottom: 10px;
+}
+
+.task-rectime{
+	float: right;
+}
 
 .progress{
 	width: 0%;
@@ -79,4 +90,22 @@ ul{
 .btn-text{
 	position: relative;
 	z-index: 2;
+}
+
+
+.author-interface{
+	background-color: #e8b688;
+	width: 95%;
+	margin: auto;
+	padding: 10px;
+}
+
+input#task-name{
+	display: block;
+}
+textarea#task-description{
+	display: block;
+}
+input#task-rec-time{
+	display: block;
 }

@@ -24,6 +24,35 @@ def main():
     )
 
 
+@app.route("/author")
+def author():
+    return render_template("authoring.html",
+        style_link=url_for("static", filename="style.css"),
+        js_link=url_for("static", filename="authoring.js"),
+        vue_link = url_for("static", filename="vue.js")
+    )   
+
+
+@app.route("/submitTask")
+def submitTask():
+    task_def = json.loads(request.args.get("task"))
+
+    item = {
+            'entryType':{"S":"T"},
+            "id":{"S":  uuid.uuid1().hex},
+            "description":{"S":task_def["description"]},
+            'title':{"S":task_def["title"]},
+            'rec_time':{"N":str(task_def["rec_time"])}
+    }
+    resp = ddb_client.put_item(
+        TableName = settings["TaskDDB_Name"],
+        Item = item
+    )
+    print(resp)
+    return {"Status":"OK"}
+
+
+
 @app.route("/tasks")
 def ddb_tasks():
     response = ddb_client.query(

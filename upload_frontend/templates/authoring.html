@@ -9,15 +9,19 @@
 			  crossorigin="anonymous"></script>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Anton&family=Assistant:wght@300&display=swap" rel="stylesheet"> 
+		<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet"> 
 
 	</head>
 	<body>
 		<div class="heading">
-			<h1>GenRep Upload Interface</h1>
+			<h1>GenRep Task Authoring Interface</h1>
 		</div>
+
+		<div id="task-author">
+			<author-interface></author-interface>
+
 		
-		<div id="recording-tasks">
+
 			<ul class="tasks">
 				<rec-task
 				 v-for="item in tasklist"

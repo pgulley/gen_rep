@@ -46,10 +46,21 @@ function s3_upload_loop(task_id){
 }
 
 
+
+
+
 Vue.component('rec-task', {
   	props:["task"],
   	template: `<div class="recording-task" v-bind:id=task.id>
 			<h2>{{ task.title }}</h2>
+
+			<div class="task-rectime">
+				{{ task.rec_time / 1000}} Seconds
+			</div>
+			<div class="task-description">
+				{{ task.description}}
+			</div>
+
 			<button class="task-btn rec" v-on:click="record">
 				<div class="progress rec-bar" > </div><div class='btn-text'>Record</div>
 			</button>

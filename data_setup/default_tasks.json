@@ -1,6 +1,17 @@
 [
-	{ "title": "This is a recording task", "rec_time":1000},
-	{ "title": "This is another one", "rec_time":3000},
-	{ "title": "a longer one", "rec_time":5000},
-	{ "title": "finally, another", "rec_time":6000}
+	{ 
+		"title": "Open Ended Recording Task", 
+		"description":"You have five seconds to make whatever sounds you wish",
+		"rec_time":5000
+	},
+	{	"title": "Babooie",
+		"description":"Say 'Babooie' ",
+		"rec_time":2000
+	},
+	{
+		"title": "And the rest is...",
+		"description": "three seconds of silence, please",
+		"rec_time":3000
+	}
+
 ]

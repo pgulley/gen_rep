@@ -78,6 +78,7 @@ def populate_default_tasks():
 		item = {
 			'entryType':{"S":"T"},
 			"id":{"S":  uuid.uuid1().hex},
+			"description":{"S":task["description"]},
 			'title':{"S":task["title"]},
 			'rec_time':{"N":str(task["rec_time"])}
 		}

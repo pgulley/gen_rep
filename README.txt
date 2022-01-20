@@ -11,24 +11,20 @@ The TASK db has an "entrytype" field- "T" marks recording tasks. "G" will mark g
 each "G" will get it's own url.
 
 
-Big challenges:
+Laundry List of goals
 	easily add and change game schemas.
-	export game urls
-	'users' how do?
-	generative front end... bigger q. 
-
-easy things:
-	lambda to host upload frontend
-	s3 + dynamodb to host audio content and metadata.
-		 
-	Use JS to get the browser to capture 5 second audio clips from the user, and replay them.
-		Then, upload those clips to the s3+ddb system.
-
-	encapsulate that interface with some modularity:
-		each "recording task" has a description and a time limit. 
-		each recording is attached to a task and a user. 
+	export game urls as qr codes. 
+	niceish ux. 
 
 
+Generative Frontend
+	Also VueJS based.
+	Very simple demo for now- grab a random recording from a given task and play it.
+
+	We'll want some different indexes on the audio table- by user, by time, by task, etc...
+
+
+Another Big Question- can we validate all the features on mobile too?
 
 
 

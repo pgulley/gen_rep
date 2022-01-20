@@ -27,6 +27,10 @@ h2{
 	display: inline-block;
 }
 
+h2.author{
+	display: block;
+}
+
 thead{
 	font-weight: bold
 }
@@ -43,6 +47,14 @@ ul{
 .recording-task{
 	width: 95%;
 	
+	background-color: #e8b688;
+	padding: 10px;
+	margin: auto;
+	margin-bottom: 10px;
+}
+
+.task-group{
+	width: 95%;
 	background-color: #e8b688;
 	padding: 10px;
 	margin: auto;
@@ -97,15 +109,31 @@ ul{
 	background-color: #e8b688;
 	width: 95%;
 	margin: auto;
+	margin-bottom: 10px;
 	padding: 10px;
 }
 
-input#task-name{
+.group-author-interface{
+	background-color: #e8b688;
+	width: 95%;
+	margin: auto;
+	margin-bottom: 10px;
+	padding: 10px;
+
+}
+
+.task-author{
+	padding-bottom: 10px;
+	border-bottom: 1px solid black;
+	margin-bottom: 20px;
+}
+
+input{
 	display: block;
 }
-textarea#task-description{
+textarea{
 	display: block;
 }
-input#task-rec-time{
+input{
 	display: block;
 }

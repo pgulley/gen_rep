@@ -12,18 +12,17 @@
 		<link href="https://fonts.googleapis.com/css2?family=Anton&family=Assistant:wght@300&display=swap" rel="stylesheet"> 
 
 	</head>
-	<body id={{group_id}} stage={{ stage }}>
+	<body stage="{{ stage }}">
 		<div class="heading">
-			<h1>GenRep Upload Interface</h1>
-			
+			<h1>GenRep Home Page</h1>
 		</div>
 		
-		<div id="recording-tasks">
-			<ul class="tasks">
-				<rec-task
-				 v-for="item in tasklist"
-				 v-bind:task='item'
-				 v-bind:key="item.id"></rec-task>
+		<div id="task-groups">
+			<ul class="groups">
+				<task-group
+				 v-for="item in grouplist"
+				 v-bind:group='item'
+				 v-bind:key="item.id"></task-group>
 			</ul>
 		</div>
 	</body>

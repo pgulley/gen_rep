@@ -10,6 +10,16 @@ active_task = null
 recorded_tasks = {}
 vueapp = null
 
+function get_url(target){
+	stage = $("body").attr("stage")
+	if(stage == "None"){
+		return target
+	}else{
+		return "/"+stage+target
+	}
+}
+
+
 navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
 	mediaRecorder = new MediaRecorder(stream);
 	mediaRecorder.ondataavailable = function(e) {
@@ -22,7 +32,7 @@ navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
 
 function s3_upload_loop(task_id){
 	$.ajax({
-			url:window.location.href+"/get_s3_upload_url",
+			url:get_url("/get_s3_upload_url"),
 			data:{task:task_id}
 	}).done(function(resp){
 
@@ -34,7 +44,7 @@ function s3_upload_loop(task_id){
 		}).then(function(resp){
 			if(resp.status == 200){
 				$.ajax({
-					url:window.location.href+"/put_job_record_ddb",
+					url:get_url("/put_job_record_ddb"),
 					data:{location:resp.url.split("?")[0],task_id:active_task},
 				}).done(function(resp){			
 					$(`#${task_id}`).find(".task-btn.upl").prop('disabled', true)
@@ -55,10 +65,10 @@ Vue.component('rec-task', {
 			<h2>{{ task.title }}</h2>
 
 			<div class="task-rectime">
-				{{ task.rec_time / 1000}} Seconds
+				{{ task.rec_time / 1000 }} Seconds
 			</div>
 			<div class="task-description">
-				{{ task.description}}
+				{{ task.description }}
 			</div>
 
 			<button class="task-btn rec" v-on:click="record">
@@ -121,8 +131,10 @@ Vue.component('rec-task', {
 
 
 get_tasks = function(){
+	group_id = $("body").attr('id')
 	$.ajax({
-		url:window.location.href+"/tasks"
+		url:get_url(`/tasks`),
+		data:{group_id:group_id}
 	}).done(function(resp){
 		console.log(resp)
 		var app1 = new Vue({

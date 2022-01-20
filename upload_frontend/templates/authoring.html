@@ -9,26 +9,26 @@
 			  crossorigin="anonymous"></script>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet"> 
+		<link href="https://fonts.googleapis.com/css2?family=Anton&family=Assistant:wght@300&display=swap" rel="stylesheet"> 
 
 	</head>
-	<body>
+	<body stage={{ stage }}>
 		<div class="heading">
 			<h1>GenRep Task Authoring Interface</h1>
+			<a href="/"> Home </a>
 		</div>
 
-		<div id="task-author">
-			<author-interface></author-interface>
-
+		<ul id="AuthoringGroups">
+				<new-group-author></new-group-author>
+				<hr>
+				<author-group-interface
+				 v-for="item in grouplist"
+				 v-bind:group='item'
+				 v-bind:key="item.id">
+				 	
+				 </author-group-interface>
+		</ul>
 		
-
-			<ul class="tasks">
-				<rec-task
-				 v-for="item in tasklist"
-				 v-bind:task='item'
-				 v-bind:key="item.id"></rec-task>
-			</ul>
-		</div>
 	</body>
 	<script src={{vue_link}}></script>
 	<script src={{js_link}}></script>

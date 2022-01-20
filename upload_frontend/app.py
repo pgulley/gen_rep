@@ -4,29 +4,45 @@ import boto3
 import hashids
 import time
 import uuid
+import random
+import os
+
+STAGE = os.environ.get('STAGE')
 
 ddb_client = boto3.client("dynamodb", "us-east-1")
 s3_client = boto3.client("s3", "us-east-1")
 settings = json.loads(open("settings.json", "r").read())
 
-app = Flask(__name__)
+hasher = hashids.Hashids()
 
+app = Flask(__name__)
 
 def flatten_ddb(item):
     return {k:i[list(i)[0]] for k,i in item.items()}
 
-@app.route("/")
+#@app.route("/")
 def main():
     return render_template("main.html",
+        group_id="ALL",
+        stage = STAGE,
         style_link=url_for("static", filename="style.css"),
         js_link=url_for("static", filename="main.js"),
         vue_link = url_for("static", filename="vue.js")
     )
 
+@app.route("/")
+def groups():
+    return render_template("groupList.html",
+        stage = STAGE,
+        style_link=url_for("static", filename="style.css"),
+        js_link=url_for("static", filename="groups.js"),
+        vue_link = url_for("static", filename="vue.js")
+    )
 
 @app.route("/author")
 def author():
     return render_template("authoring.html",
+        stage = STAGE,
         style_link=url_for("static", filename="style.css"),
         js_link=url_for("static", filename="authoring.js"),
         vue_link = url_for("static", filename="vue.js")
@@ -39,8 +55,9 @@ def submitTask():
 
     item = {
             'entryType':{"S":"T"},
-            "id":{"S":  uuid.uuid1().hex},
+            "id":{"S":  hasher.encode(int(time.time()*10 + random.randint(0,100)))},
             "description":{"S":task_def["description"]},
+            "taskGroup":{"S":task_def["taskGroup"]},
             'title':{"S":task_def["title"]},
             'rec_time':{"N":str(task_def["rec_time"])}
     }
@@ -52,9 +69,27 @@ def submitTask():
     return {"Status":"OK"}
 
 
+@app.route("/submitGroup")
+def submitGroup():
+    group_def = json.loads(request.args.get("group"))
 
-@app.route("/tasks")
-def ddb_tasks():
+    item = {
+            'entryType':{"S":"G"},
+            "id":{"S": hasher.encode(int(time.time()*10 + random.randint(0,100)))},
+            "description":{"S":group_def["description"]},
+            'title':{"S":group_def["title"]},
+    }
+    resp = ddb_client.put_item(
+        TableName = settings["TaskDDB_Name"],
+        Item = item
+    )
+    print(resp)
+    return {"Status":"OK"}
+
+
+
+@app.route("/all_tasks")
+def all_ddb_tasks():
     response = ddb_client.query(
         TableName = settings["TaskDDB_Name"],
         IndexName="entryType",        
@@ -67,7 +102,52 @@ def ddb_tasks():
 
     return {"data":items}
 
+@app.route("/tasks")
+def ddb_group_tasks():
+    group_id = request.args.get("group_id")
+    if(group_id == "ALL"):
+        return all_ddb_tasks
+    else:
+        print("=#"*10)
+        print(group_id)
+        response = ddb_client.query(
+            TableName = settings["TaskDDB_Name"],
+            IndexName="taskGroup",        
+            Select = "ALL_ATTRIBUTES",
+            KeyConditionExpression = "taskGroup = :group",
+            ExpressionAttributeValues = { ":group":{"S":group_id}}
+        )
+        items = response["Items"]
+        items = [flatten_ddb(item) for item in items]
+        return {"data":items}
 
+
+@app.route("/all_groups")
+def ddb_groups():
+    response = ddb_client.query(
+        TableName = settings["TaskDDB_Name"],
+        IndexName="entryType",        
+        Select = "ALL_ATTRIBUTES",
+        KeyConditionExpression = "entryType = :type",
+        ExpressionAttributeValues = {":type": {"S": "G"}}
+    )
+    items = response["Items"]
+    items = [flatten_ddb(item) for item in items]
+    return {"data":items}
+
+@app.route("/group/<group_id>")
+def group_tasks(group_id):
+    return render_template("main.html",
+        stage = STAGE,
+        group_id=group_id,
+        style_link=url_for("static", filename="style.css"),
+        js_link=url_for("static", filename="main.js"),
+        vue_link = url_for("static", filename="vue.js")
+    ) 
+
+
+
+###UPLOAD MECHANICS
 
 @app.route("/get_s3_upload_url")
 def get_s3_upload_url():

@@ -1,17 +1,38 @@
 [
 	{ 
-		"title": "Open Ended Recording Task", 
-		"description":"You have five seconds to make whatever sounds you wish",
-		"rec_time":5000
+		"title": "default group",
+		"description":"these tasks are uploaded on the backend",
+		"tasks":[
+			{ 
+				"title": "Open Ended Recording Task", 
+				"description":"You have five seconds to make whatever sounds you wish",
+				"rec_time":5000,
+				"order":1
+			},
+			{	
+				"title": "Babooie",
+				"description":"Say 'Babooie' ",
+				"rec_time":2000,
+				"order":2
+			},
+			{
+				"title": "And the rest is...",
+				"description": "three seconds of silence, please",
+				"rec_time":3000,
+				"order":3
+			}
+		]
 	},
-	{	"title": "Babooie",
-		"description":"Say 'Babooie' ",
-		"rec_time":2000
-	},
-	{
-		"title": "And the rest is...",
-		"description": "three seconds of silence, please",
-		"rec_time":3000
+	{ 
+		"title":"second default group",
+		"description":"another set of tasks, just to demonstrate that they're being differentiated",
+		"tasks":[
+			{
+				"title":"scream",
+				"description": "scream",
+				"rec_time":8000,
+				"order":2
+			}
+		]
 	}
-
 ]

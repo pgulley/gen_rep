@@ -1,7 +1,10 @@
 import boto3
 import json
 import uuid
-
+import hashids
+import time
+import argparse
+import random
 
 client = boto3.client('dynamodb', region_name="us-east-1")
 settings = json.loads(open("../settings.json", "r").read())
@@ -13,6 +16,10 @@ def create_audio_table():
 				'AttributeName':'_id',
 				'AttributeType':'S'
 			},
+			{
+				'AttributeName':'task_id',
+				'AttributeType':'S'
+			}
 		],
 		TableName=settings["AudioDDB_Name"],
 		KeySchema=[
@@ -21,7 +28,20 @@ def create_audio_table():
 				'KeyType':"HASH"
 			}
 		],
-		BillingMode="PAY_PER_REQUEST")
+		BillingMode="PAY_PER_REQUEST",
+		GlobalSecondaryIndexes=[
+			{
+				'IndexName':"task_id",
+				'KeySchema':[{
+					"AttributeName":"task_id",
+					"KeyType":"HASH"
+				}],
+				"Projection":{
+					"ProjectionType":"ALL"
+				}
+
+			}]
+		)
 	print(response)
 
 
@@ -34,6 +54,10 @@ def create_tasks_table():
 			},
 			{	'AttributeName':'entryType',
 				'AttributeType':'S',
+			},
+			{
+				'AttributeName':'taskGroup',
+				'AttributeType':'S'
 			}
 		],
 		TableName=settings["TaskDDB_Name"],
@@ -55,7 +79,20 @@ def create_tasks_table():
 
 				}
 				
-			}
+			},
+			{
+				'IndexName':"taskGroup",
+				'KeySchema':[{
+					"AttributeName":"taskGroup",
+					"KeyType":"HASH"
+				}],
+				"Projection":{
+					"ProjectionType":"ALL",
+
+				}
+				
+			},
+
 		],
 		BillingMode="PAY_PER_REQUEST")
 	print(response)
@@ -71,24 +108,52 @@ def delete_task_table():
 
 
 def populate_default_tasks():
-	local_tasks = json.loads(open("default_tasks.json", "r").read())
-	print(local_tasks)
-	for task in local_tasks:
+	default_tasks = json.loads(open("default_tasks.json", "r").read())
+	print(default_tasks)
+	hasher = hashids.Hashids()
+	for group in default_tasks:
+
+		grouphash = hasher.encode(int(time.time()*10))
 
 		item = {
-			'entryType':{"S":"T"},
-			"id":{"S":  uuid.uuid1().hex},
-			"description":{"S":task["description"]},
-			'title':{"S":task["title"]},
-			'rec_time':{"N":str(task["rec_time"])}
+			'entryType':{"S":"G"},
+			"id":{"S":  grouphash},
+			"description":{"S":group["description"]},
+			'title':{"S":group["title"]},
+			
 		}
 		resp = client.put_item(
 		    TableName = settings["TaskDDB_Name"],
 		    Item = item
 		)
-		print(resp)
+		for task in group["tasks"]:
+			item = {
+				'entryType':{"S":"T"},
+				"taskGroup":{"S":grouphash},
+				"order":{"N":str(task["order"])},
+				"id":{"S":  hasher.encode(int(time.time()*10 + random.randint(0,100)))},
+				"description":{"S":task["description"]},
+				'title':{"S":task["title"]},
+				'rec_time':{"N":str(task["rec_time"])}
+			}
+			resp = client.put_item(
+			    TableName = settings["TaskDDB_Name"],
+			    Item = item
+			)
 
 
-#delete_task_table()
-#create_tasks_table()
-populate_default_tasks()
+jobs = {
+	"delete-audio":delete_audio_table,
+	"create-audio":create_audio_table,
+	"delete-task":delete_task_table,
+	"create-task":create_tasks_table,
+	"populate-task":populate_default_tasks
+}		
+
+parser = argparse.ArgumentParser(description="genrep database utilities")
+parser.add_argument("job", choices = list(jobs.keys()), help="Which task to run")
+
+if __name__ == "__main__":
+	args = parser.parse_args()
+	jobs[args.job]()
+

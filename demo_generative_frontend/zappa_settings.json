@@ -1,0 +1,11 @@
+{
+    "dev": {
+        "app_function": "app.app",
+        "profile_name": "default",
+        "project_name": "demo-generative",
+        "runtime": "python3.8",
+        "s3_bucket": "zappa-t6wedt8o1",
+        "aws_region":"us-east-1",
+        "keep_warm":false,
+    }
+}

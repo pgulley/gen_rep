@@ -16,10 +16,16 @@
 				"order":2
 			},
 			{
-				"title": "And the rest is...",
-				"description": "three seconds of silence, please",
+				"title": "Say 'oooo'",
+				"description": "as in 'pool', for three seconds",
 				"rec_time":3000,
 				"order":3
+			},
+			{
+				"title":"Say 'aaa'",
+				"description": "as in 'autumn'",
+				"rec_time":3000,
+				"order":4
 			}
 		]
 	},

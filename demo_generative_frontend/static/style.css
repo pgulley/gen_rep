@@ -11,6 +11,11 @@ body{
 	display: inline-block;
 }
 
+.heading{
+	font-family: anton;
+	padding-left: 50px;
+	border-bottom: 2px solid black;
+}
 
 .task-title{
 	font-family: anton;

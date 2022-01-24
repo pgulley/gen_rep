@@ -19,10 +19,10 @@ Vue.component('task-playback-node', {
 
 			<div>
 				<input v-on:change="loop_state" v-model=loop type="checkbox" id="scales">
-  				<label for="scales">Loop Samples</label>
+  				<label for="scales">Play Samples</label>
 			</div>
 			<div>
-				<label for="loop_time">Loop Time</label>
+				<label for="loop_time"> Loop Time (milliseconds)</label>
 				<input id="loop_time" v-model="loopTime" type="number"> </input>
 			</div>
 			</div>`,
@@ -34,6 +34,12 @@ Vue.component('task-playback-node', {
 		}
 	},
 	methods:{
+		update_loop:function(){
+			audio_locations[task_id] == []
+			this.get_recording_meta()
+			//get the metadata fresh every 10 minutes. 
+			setTimeout(this.get_recording_meta, 1000 * 60 * 10)
+		},
 		get_recording_meta:function(){
 			$.ajax({
 				url:get_url("/get_task_audio"),
@@ -41,20 +47,16 @@ Vue.component('task-playback-node', {
 			}).done(function(resp){
 				if(resp.data.length > 0){
 					task_id = resp.data[0].task_id
-					audio_locations[task_id] == []
-					console.log(resp)
-					console.log(resp.data)
 					for(rec in resp.data){
 						rec = resp.data[rec]
 						audio_locations[task_id].push( rec._id )
 					}
-					//every ten minutes, check for new recordings. 
-					setTimeout(get_recording_meta, 1000 * 60 * 10)
+					
+					
 				}
 			})
 		},
-		play_random_recording:function(){
-			
+		play_random_recording:function(){	
 			if(audio_locations[this.id].length > 0){
 				random_id = audio_locations[this.id][Math.floor(Math.random() * audio_locations[this.id].length)]
 				if($(`#${random_id}`).length == 0){
@@ -82,7 +84,7 @@ Vue.component('task-playback-node', {
 		get_audio_source:function(rec_id){
 
 			src = audioCtx.createMediaElementSource($(`#${rec_id}`)[0])
-			src.connect(audioCtx.destination)
+			src.connect(audioCtx.destination) //Right now this just connects to a single very simple pipeline- many inputs to one output. 
 			srcs.push(src)
 			$(`#${rec_id}`)[0].play()
 
@@ -101,10 +103,8 @@ Vue.component('task-playback-node', {
 		}
 
 	},
-
 	created:function(){
-		audio_locations[this.id] = []
-		this.get_recording_meta()
+		this.update_loop()
 	}
 })
 

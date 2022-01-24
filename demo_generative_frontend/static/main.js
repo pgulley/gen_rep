@@ -16,7 +16,7 @@ Vue.component('task-playback-node', {
 	props:["task"],
 	template:`<div class="task-playback"> 
 			<div class="task-title">{{ task.title }}</div> 
-			
+
 			<div>
 				<input v-on:change="loop_state" v-model=loop type="checkbox" id="scales">
   				<label for="scales">Loop Samples</label>
@@ -30,7 +30,7 @@ Vue.component('task-playback-node', {
 		return{
 			id:this.task.id,
 			loop: false,
-			loopTime: this.task.rec_time * 2
+			loopTime: this.task.rec_time
 		}
 	},
 	methods:{
@@ -41,12 +41,15 @@ Vue.component('task-playback-node', {
 			}).done(function(resp){
 				if(resp.data.length > 0){
 					task_id = resp.data[0].task_id
+					audio_locations[task_id] == []
 					console.log(resp)
 					console.log(resp.data)
 					for(rec in resp.data){
 						rec = resp.data[rec]
 						audio_locations[task_id].push( rec._id )
 					}
+					//every ten minutes, check for new recordings. 
+					setTimeout(get_recording_meta, 1000 * 60 * 10)
 				}
 			})
 		},
@@ -96,6 +99,7 @@ Vue.component('task-playback-node', {
 			}
 			
 		}
+
 	},
 
 	created:function(){

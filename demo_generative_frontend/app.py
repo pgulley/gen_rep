@@ -40,6 +40,21 @@ def all_ddb_tasks():
     return {"data":items}
 
 
+@app.route("/group_tasks")
+def ddb_group_tasks():
+    group_id = request.args.get("group_id")
+    response = ddb_client.query(
+        TableName = settings["TaskDDB_Name"],
+        IndexName="taskGroup",        
+        Select = "ALL_ATTRIBUTES",
+        KeyConditionExpression = "taskGroup = :group",
+        ExpressionAttributeValues = { ":group":{"S":group_id}}
+    )
+    items = response["Items"]
+    items = [flatten_ddb(item) for item in items]
+
+    return {"data":items, "group_id":group_id}
+
 @app.route("/get_task_audio")
 def get_task_audio():
 	task_id = request.args.get("task_id")

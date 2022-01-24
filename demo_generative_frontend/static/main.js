@@ -14,10 +14,23 @@ srcs = []
 
 Vue.component('task-playback-node', {
 	props:["task"],
-	template:'<div class="task-playback"> {{ task.title }} <button v-on:click="play_random_recording"> play </button></div>',
+	template:`<div class="task-playback"> 
+			<div class="task-title">{{ task.title }}</div> 
+			
+			<div>
+				<input v-on:change="loop_state" v-model=loop type="checkbox" id="scales">
+  				<label for="scales">Loop Samples</label>
+			</div>
+			<div>
+				<label for="loop_time">Loop Time</label>
+				<input id="loop_time" v-model="loopTime" type="number"> </input>
+			</div>
+			</div>`,
 	data:function(){
 		return{
 			id:this.task.id,
+			loop: false,
+			loopTime: this.task.rec_time * 2
 		}
 	},
 	methods:{
@@ -41,7 +54,13 @@ Vue.component('task-playback-node', {
 			
 			if(audio_locations[this.id].length > 0){
 				random_id = audio_locations[this.id][Math.floor(Math.random() * audio_locations[this.id].length)]
-				this.get_recording(random_id)
+				if($(`#${random_id}`).length == 0){
+					this.get_recording(random_id)
+				}
+				else{
+					$(`#${random_id}`)[0].play()
+				}
+				
 			}
 		},
 		get_recording:function(rec_id){
@@ -64,6 +83,18 @@ Vue.component('task-playback-node', {
 			srcs.push(src)
 			$(`#${rec_id}`)[0].play()
 
+		},
+		loop_state(){
+			if(this.loop){
+				this.play_loop()
+			}
+		},
+		play_loop:function(){
+			this.play_random_recording()
+			if(this.loop){
+				setTimeout(this.play_loop, this.loopTime)
+			}
+			
 		}
 	},
 

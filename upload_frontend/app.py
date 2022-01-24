@@ -108,8 +108,6 @@ def ddb_group_tasks():
     if(group_id == "ALL"):
         return all_ddb_tasks
     else:
-        print("=#"*10)
-        print(group_id)
         response = ddb_client.query(
             TableName = settings["TaskDDB_Name"],
             IndexName="taskGroup",        

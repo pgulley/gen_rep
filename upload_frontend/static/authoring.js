@@ -61,8 +61,11 @@ Vue.component('author-task-interface',{
 		},
 		validate:function(){
 			console.log(this.group_id)
+			console.log(this.title)
+			console.log(this.recTime)
+			console.log(this.description)
 			if(this.title != "" && this.description != "" && this.recTime > 0 ){
-				$(`.task-submit#${this.group_id}`).prop('disabled', false)
+				$(`#${this.group_id}.task-submit`).prop('disabled', false)
 			}
 		}
 	}
@@ -115,7 +118,7 @@ Vue.component('author-group-interface',{
 		return {
 			group_id:this.group.id,
 			tasklist:this.taskslist,
-			href=get_url(`/group/${this.group_id}`)
+			href:get_url(`/group/${this.group_id}`)
 		}
 	},
 	created:function(){

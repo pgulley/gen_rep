@@ -43,3 +43,4 @@ get_groups = function(){
 	})
 }
 get_groups()
+$("#author_link").attr("href", get_url("/author"))

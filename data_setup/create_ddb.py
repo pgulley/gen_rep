@@ -98,6 +98,23 @@ def create_tasks_table():
 	print(response)
 
 
+def create_session_table():
+	response = client.create_table(
+		AttributeDefinitions = [{
+			"AttributeName":"id",
+			"AttributeType":"S"
+		}],
+		KeySchema = [{
+		"AttributeName":'id',
+		"KeyType": "HASH"}],
+		BillingMode="PAY_PER_REQUEST",
+		TableName=settings["SessionDDB_Name"]
+	)
+
+def delete_session_table():
+	response = client.delete_table(TableName=settings["SessionDDB_Name"])
+	print(response)
+
 def delete_audio_table():
 	response = client.delete_table(TableName=settings["AudioDDB_Name"])
 	print(response)
@@ -141,13 +158,13 @@ def populate_default_tasks():
 			    Item = item
 			)
 
-
 jobs = {
 	"delete-audio":delete_audio_table,
 	"create-audio":create_audio_table,
 	"delete-task":delete_task_table,
 	"create-task":create_tasks_table,
-	"populate-task":populate_default_tasks
+	"populate-task":populate_default_tasks,
+	"create-session":create_session_table,
 }		
 
 parser = argparse.ArgumentParser(description="genrep database utilities")

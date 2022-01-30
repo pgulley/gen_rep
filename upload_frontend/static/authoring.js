@@ -196,4 +196,4 @@ get_groups = function(){
 	})
 }
 get_groups()
-$("#home_link").attr("http", get_url("/"))
+$("#home_link").attr("href", get_url("/"))

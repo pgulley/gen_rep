@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request
+from flask import Flask, render_template, url_for, request, session
 import json
 import boto3
 import hashids
@@ -6,6 +6,8 @@ import time
 import uuid
 import random
 import os
+
+from flask_dynamodb_sessions import Session
 
 STAGE = os.environ.get('STAGE')
 
@@ -16,6 +18,10 @@ settings = json.loads(open("settings.json", "r").read())
 hasher = hashids.Hashids()
 
 app = Flask(__name__)
+
+
+app.config["SESSION_DYNAMODB_TABLE"] = settings["SessionDDB_Name"]
+Session(app)
 
 def flatten_ddb(item):
     return {k:i[list(i)[0]] for k,i in item.items()}
@@ -32,6 +38,7 @@ def main():
 
 @app.route("/")
 def groups():
+    
     return render_template("groupList.html",
         stage = STAGE,
         style_link=url_for("static", filename="style.css"),

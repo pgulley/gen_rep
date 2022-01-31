@@ -138,7 +138,11 @@ input{
 	display: block;
 }
 
-@media screen and (max-width: 600px){
+.login_text{
+	font-family: sans-serif;
+}
+
+@media only screen and (hover: none){
 	.recording-task h2{
 		font-size: 3em !important;
 	}
@@ -146,7 +150,37 @@ input{
 		font-size: 2em;
 	}
 	.task-btn{
-		font-size: 4em !important;
+		margin-bottom: .25em;
+		font-size: 6em !important;
+	}
+	.task-rectime{
+		font-size: 2em;
 	}
 
+	.qm-modal{
+		font-size: 3em;
+		min-width: 90% !important;
+		
+	}
+	.login_text{
+		font-size: 1em;
+	}
+	.login_form{
+		font-size: 1em;
+	}
+	#user-email{
+		font-size: 1em;
+	}
+	#user-share_default{
+		height: 50px;
+		width: 50px;
+		display: inline-block;
+	}
+	#user-submit{
+		font-size: 1em;
+		margin-bottom: 10px;
+	}
+	#user-anon{
+		font-size: 1em;
+	}
 }

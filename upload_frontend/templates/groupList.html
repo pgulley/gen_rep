@@ -30,18 +30,23 @@
 
 		<div id="login_modal" class="qm-modal">
 		    <h1>You're not logged in!</h1>
-		    Enter your email and your sharing settings. If you don't already have an account, we'll make one for you. </br>
+		    <div class="login_text">
+
+		    Enter your email and indicate if you'd like your recordings shared with the public or not.
+			</br>
 		    Your sharing settings can be changed later per-recording. 
+			</br>
 		    Or, if you'd rather remain anonymous (and share all of your recordings), press "Remain Anonymous" 
+		    </div>
 		    <div class="login_form">
 		    	<label for="user-email"> Email </label>
 		    	<input id="user-email" type="text"></input>
 		    	<label for="user-share_default"> Share recordings by default </label>
 		     	<input id="user-share_default" type="checkbox" checked></input>
+		    	 </br>
 		     	<button id="user-submit">Submit</button>
 		     	<button id="user-anon">Remain Anonymous</button>
 		    </div>
-		    <a href="#" class="qm-close-modal"></a>
 		</div>
 
 	</body>

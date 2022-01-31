@@ -137,3 +137,16 @@ textarea{
 input{
 	display: block;
 }
+
+@media screen and (max-width: 600px){
+	.recording-task h2{
+		font-size: 3em !important;
+	}
+	.task-description{
+		font-size: 2em;
+	}
+	.task-btn{
+		font-size: 4em !important;
+	}
+
+}

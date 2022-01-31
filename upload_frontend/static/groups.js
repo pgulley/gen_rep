@@ -22,6 +22,7 @@ function get_url(target){
 	stage = $("body").attr("stage")
 	if(stage == "None"){
 		return target
+	
 	}else{
 		return "/"+stage+target
 	}
@@ -44,3 +45,29 @@ get_groups = function(){
 }
 get_groups()
 $("#author_link").attr("href", get_url("/author"))
+if($('body').attr('user') == "None"){
+	console.log("no user")
+	$('#login_modal').quickModal('open');
+}
+
+function submit_user(email, pref){
+	sharing = ( pref=='on')
+	$.ajax({
+		url:get_url("/login"),
+		data:{email:email, sharing:sharing}
+	}).done(function(resp){
+		$('#login_modal').quickModal('close');
+		$('body').attr('user_id',resp['user_id'])
+		$('body').attr("user_share_preference", resp["user_share_preference"])
+	})
+}
+
+$(document).ready(function(){
+	$("#user-submit").click(function(){
+		submit_user($("#user-email").val(), $("#user-share_default").val())
+	})
+
+	$("#user-anon").click(function(){
+		$('#login_modal').quickModal('close');
+	})
+})

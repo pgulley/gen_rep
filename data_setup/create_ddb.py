@@ -58,6 +58,10 @@ def create_tasks_table():
 			{
 				'AttributeName':'taskGroup',
 				'AttributeType':'S'
+			},
+			{
+				'AttributeName':"email",
+				"AttributeType":"S"
 			}
 		],
 		TableName=settings["TaskDDB_Name"],
@@ -79,6 +83,17 @@ def create_tasks_table():
 
 				}
 				
+			},
+			{
+				'IndexName':"user",
+				'KeySchema':[{
+					"AttributeName":"email",
+					"KeyType":"HASH"
+				}],
+				"Projection":{
+					"ProjectionType":"ALL",
+
+				}
 			},
 			{
 				'IndexName':"taskGroup",

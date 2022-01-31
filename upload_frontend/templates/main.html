@@ -11,10 +11,12 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Anton&family=Assistant:wght@300&display=swap" rel="stylesheet"> 
 
+	    <script src={{modal_js}}></script>
+	    <link rel="Stylesheet" href={{modal_css}}>
 	</head>
-	<body id={{group_id}} stage={{ stage }}>
+	<body id={{group_id}} user={{user_id}} user_pref={{user_share_preference}} stage={{ stage }}>
 		<div class="heading">
-			<h1>GenRep Upload Interface</h1>
+			
 			
 			
 		</div>
@@ -26,6 +28,21 @@
 				 v-bind:task='item'
 				 v-bind:key="item.id"></rec-task>
 			</ul>
+		</div>
+		<div id="login_modal" class="qm-modal">
+		    <h1>You're not logged in!</h1>
+		    Enter your email and your sharing settings. If you don't already have an account, we'll make one for you. </br>
+		    Your sharing settings can be changed later per-recording. 
+		    Or, if you'd rather remain anonymous (and share all of your recordings), press "Remain Anonymous" 
+		    <div class="login_form">
+		    	<label for="user-email"> Email </label>
+		    	<input id="user-email" type="text"></input>
+		    	<label for="user-share_default"> Share recordings by default </label>
+		     	<input id="user-share_default" type="checkbox" checked></input>
+		     	<button id="user-submit">Submit</button>
+		     	<button id="user-anon">Remain Anonymous</button>
+		    </div>
+		    <a href="#" class="qm-close-modal"></a>
 		</div>
 	</body>
 	<script src={{vue_link}}></script>

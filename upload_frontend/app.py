@@ -11,6 +11,7 @@ from flask_dynamodb_sessions import Session
 
 STAGE = os.environ.get('STAGE')
 
+
 ddb_client = boto3.client("dynamodb", "us-east-1")
 s3_client = boto3.client("s3", "us-east-1")
 settings = json.loads(open("settings.json", "r").read())
@@ -33,18 +34,42 @@ def main():
         stage = STAGE,
         style_link=url_for("static", filename="style.css"),
         js_link=url_for("static", filename="main.js"),
-        vue_link = url_for("static", filename="vue.js")
+        vue_link = url_for("static", filename="vue.js"),
+        modal_js = url_for("static", filename="jquery.quick-modal.min.js"),
+        modal_css = url_for("static", filename="quick-modal.min.css")
     )
 
 @app.route("/")
 def groups():
-    
+    user = session.get("logged_in")
+    print(url_for("static", filename="quick-modal.min.css"))
     return render_template("groupList.html",
+        user_id = session.get("user_id"),
+        user_share_preference = session.get("user_share_preference"),
         stage = STAGE,
         style_link=url_for("static", filename="style.css"),
         js_link=url_for("static", filename="groups.js"),
-        vue_link = url_for("static", filename="vue.js")
+        vue_link = url_for("static", filename="vue.js"),
+        modal_js = url_for("static", filename="jquery.quick-modal.min.js"),
+        modal_css = url_for("static", filename="quick-modal.min.css")
     )
+
+
+@app.route("/group/<group_id>")
+def group_tasks(group_id):
+    user = session.get("logged_in")
+    return render_template("main.html",
+        user_id = session.get("user_id"),
+        user_share_preference = session.get("user_share_preference"),
+        stage = STAGE,
+        group_id=group_id,
+        style_link=url_for("static", filename="style.css"),
+        js_link=url_for("static", filename="main.js"),
+        vue_link = url_for("static", filename="vue.js"),
+        modal_js = url_for('static', filename="jquery.quick-modal.min.js"),
+        modal_css = url_for('static', filename="quick-modal.min.css")
+    ) 
+
 
 @app.route("/author")
 def author():
@@ -52,9 +77,12 @@ def author():
         stage = STAGE,
         style_link=url_for("static", filename="style.css"),
         js_link=url_for("static", filename="authoring.js"),
-        vue_link = url_for("static", filename="vue.js")
+        vue_link = url_for("static", filename="vue.js"),
+        modal_js = url_for('static', filename="jquery.quick-modal.min.js"),
+        modal_css = url_for('static', filename="quick-modal.min.css")
     )   
 
+###Ajaxy data stuff
 
 @app.route("/submitTask")
 def submitTask():
@@ -140,15 +168,56 @@ def ddb_groups():
     items = [flatten_ddb(item) for item in items]
     return {"data":items}
 
-@app.route("/group/<group_id>")
-def group_tasks(group_id):
-    return render_template("main.html",
-        stage = STAGE,
-        group_id=group_id,
-        style_link=url_for("static", filename="style.css"),
-        js_link=url_for("static", filename="main.js"),
-        vue_link = url_for("static", filename="vue.js")
-    ) 
+
+###USERS
+@app.route("/login")
+def login():
+    #really, this should also check if a user with this email already exists. 
+    #if so, just grab that id and preference. 
+    #if not, create it. 
+    email = request.args.get("email")
+    share_default = request.args.get("sharing")
+    search = ddb_client.query(
+        TableName = settings["TaskDDB_Name"],
+        IndexName = "user",
+        Select = "ALL_ATTRIBUTES",
+        KeyConditionExpression = "email = :email",
+        ExpressionAttributeValues = {":email":{"S": email}}
+    )
+    if(len(search["Items"]) == 0):
+        item={
+            'entryType':{"S":"U"},
+            "id":{"S":  hasher.encode(int(time.time()*10 + random.randint(0,100)))},
+            "email":{"S":email},
+            "user_share_preference":{"BOOL":share_default=="true"}
+        }
+
+        resp = ddb_client.put_item(
+            TableName = settings["TaskDDB_Name"],
+            Item = item
+        )
+        
+        item = flatten_ddb(item)
+        session["logged_in"] = True
+        session["user_id"] = item["id"]
+        session["user_email"] = item["email"]
+        session["user_share_preference"] = item["user_share_preference"]
+    else:
+        item = flatten_ddb(search["Items"][0])
+        print(item)
+        session["logged_in"] = True
+        session["user_id"] = item["id"]
+        session["user_email"] = item["email"]
+        session["user_share_preference"] = item["user_share_preference"]
+    return {"status":"OK", "user_id":item["id"], 'user_share_preference':item["user_share_preference"]}
+
+@app.route("/logout")
+def logout():
+    session["logged_in"] = None
+    session["user_id"] = None
+    session["user_email"] = None
+    session["user_share_preference"] = None
+    return {"status": "OK"}
 
 
 
@@ -168,13 +237,16 @@ def get_s3_upload_url():
 
 @app.route("/put_job_record_ddb")
 def put_job_record_ddb():
+    user_id = session.get('user_id')
+    public = session.get("user_share_preference")
     location = request.args.get("location")
     task_id = request.args.get("task_id")
     item = {
         '_id':{"S": uuid.uuid1().hex},
-        'user_id':{"S":"test_id"},
+        'user_id':{"S":user_id},
         'upload_location':{"S":location},
         'task_id':{"S":task_id},
+        'public':{"BOOL":public},
         'timestamp':{"N":f'{time.time()}'},
     }
     ddb_client.put_item(

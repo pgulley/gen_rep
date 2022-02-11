@@ -1,0 +1,42 @@
+<html>
+	<head>
+		<title>GenRep</title>
+		<link rel="Stylesheet" href={{style_link}}>
+
+		<script
+			  src="https://code.jquery.com/jquery-3.6.0.min.js"
+			  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+			  crossorigin="anonymous"></script>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Anton&family=Assistant:wght@300&display=swap" rel="stylesheet"> 
+
+	    <script src={{modal_js}}></script>
+	    <link rel="Stylesheet" href={{modal_css}}>
+	</head>
+	<body user={{user_id}} stage={{stage}}>
+		<div class="heading">
+		<div class="user-mgmt"> <a id='logout_link'> logout </a> </div>	
+			
+			
+		</div>
+		
+		<div id="user-details">
+			 
+
+		</div>
+
+		<ul id="RecordingGroups">
+				<rec-group
+				 v-for="item in grouplist"
+				 v-bind:group='item'
+				 v-bind:key="item.id">
+				 	
+				 </rec-group>
+		</ul>
+
+		
+	</body>
+	<script src={{vue_link}}></script>
+	<script src={{js_link}}></script>
+</html>

@@ -27,6 +27,8 @@ Session(app)
 def flatten_ddb(item):
     return {k:i[list(i)[0]] for k,i in item.items()}
 
+
+#Serve the pages themselves
 #@app.route("/")
 def main():
     return render_template("main.html",
@@ -54,7 +56,6 @@ def groups():
         modal_css = url_for("static", filename="quick-modal.min.css")
     )
 
-
 @app.route("/group/<group_id>")
 def group_tasks(group_id):
     user = session.get("logged_in")
@@ -70,7 +71,6 @@ def group_tasks(group_id):
         modal_css = url_for('static', filename="quick-modal.min.css")
     ) 
 
-
 @app.route("/author")
 def author():
     return render_template("authoring.html",
@@ -82,8 +82,9 @@ def author():
         modal_css = url_for('static', filename="quick-modal.min.css")
     )   
 
-###Ajaxy data stuff
 
+
+###Ajaxy data stuff
 @app.route("/submitTask")
 def submitTask():
     task_def = json.loads(request.args.get("task"))
@@ -103,7 +104,6 @@ def submitTask():
     print(resp)
     return {"Status":"OK"}
 
-
 @app.route("/submitGroup")
 def submitGroup():
     group_def = json.loads(request.args.get("group"))
@@ -120,8 +120,6 @@ def submitGroup():
     )
     print(resp)
     return {"Status":"OK"}
-
-
 
 @app.route("/all_tasks")
 def all_ddb_tasks():
@@ -152,8 +150,8 @@ def ddb_group_tasks():
         )
         items = response["Items"]
         items = [flatten_ddb(item) for item in items]
+        items = sorted(items, key=lambda x:int(x["order"]))
         return {"data":items}
-
 
 @app.route("/all_groups")
 def ddb_groups():
@@ -189,7 +187,7 @@ def login():
             'entryType':{"S":"U"},
             "id":{"S":  hasher.encode(int(time.time()*10 + random.randint(0,100)))},
             "email":{"S":email},
-            "user_share_preference":{"BOOL":share_default=="true"}
+            "user_share_preference":{"S":share_default}
         }
 
         resp = ddb_client.put_item(
@@ -201,14 +199,30 @@ def login():
         session["logged_in"] = True
         session["user_id"] = item["id"]
         session["user_email"] = item["email"]
-        session["user_share_preference"] = item["user_share_preference"]
+        session["user_share_preference"] = (item["user_share_preference"] == "true")
     else:
         item = flatten_ddb(search["Items"][0])
         print(item)
         session["logged_in"] = True
         session["user_id"] = item["id"]
         session["user_email"] = item["email"]
-        session["user_share_preference"] = item["user_share_preference"]
+        if(item["user_share_preference"] != share_default):
+            ddb_client.update_item(
+                TableName = settings["TaskDDB_Name"],
+                Key = {
+                    "id":{
+                        "S":item["id"]
+                    }
+                },
+                UpdateExpression= "SET user_share_preference = :share_default",
+                ExpressionAttributeValues = {
+                    ":share_default":{
+                        "S":share_default
+                    }
+                }
+            )
+
+        session["user_share_preference"] = (share_default == "true")
     return {"status":"OK", "user_id":item["id"], 'user_share_preference':item["user_share_preference"]}
 
 @app.route("/logout")
@@ -219,7 +233,63 @@ def logout():
     session["user_share_preference"] = None
     return {"status": "OK"}
 
+@app.route("/user")
+def user():
+    if(session.get("logged_in")):
+        return render_template("user.html",
+            stage = STAGE,
+            user_id = session.get("user_id"),
+            style_link=url_for("static", filename="style.css"),
+            js_link=url_for("static", filename="user.js"),
+            vue_link = url_for("static", filename="vue.js"),
+            modal_js = url_for('static', filename="jquery.quick-modal.min.js"),
+            modal_css = url_for('static', filename="quick-modal.min.css")
+        )
+    else:
+        return groups()   
 
+
+@app.route("/user_recs")
+def get_user_recs():
+    #will have different paths for logged in vs logged out but lets assume for now that we have a session
+    uid = session["user_id"]
+    resp = ddb_client.query(
+        TableName = settings["AudioDDB_Name"],
+        IndexName = "user_id",
+        Select = "ALL_ATTRIBUTES",
+        KeyConditionExpression = "user_id = :user_id",
+        ExpressionAttributeValues = {":user_id":{"S": uid}}
+        )
+    recs = [flatten_ddb(item) for item in resp["Items"]]
+    for r in recs:
+        if(r["is_public"]=="True"):
+            r["is_public"] = 1
+        else:
+            r["is_public"] = 0
+    return {"recs":recs}
+
+
+@app.route("/toggle_public")
+def toggle_public():
+    _id = request.args.get("id")
+    new_is_public = request.args.get('is_public') == 'true'
+    print(request.args.get('is_public'))
+    print(new_is_public)
+    ddb_client.update_item(
+        TableName = settings["AudioDDB_Name"],
+        Key = {
+            "_id":{
+                "S":_id
+            }
+        },
+        UpdateExpression= "SET is_public = :is_public",
+        ExpressionAttributeValues = {
+            ":is_public":{
+                "S":str(new_is_public)
+            }
+        }
+    )
+    return {"status":"OK"}
 
 ###UPLOAD MECHANICS
 
@@ -234,11 +304,26 @@ def get_s3_upload_url():
             {"Bucket":settings["AudioS3_Name"], "Key":full_key, "ContentType":"audio/wav;codecs=0"})
     return {"uploadURL":post_url}
 
+@app.route("/get_s3_download_url")
+def get_s3_download_url():
+    rec_id = request.args.get("rec_id")
+    url = request.args.get("location")
+
+
+    key = url.split("/")[-1]
+
+    get_url = s3_client.generate_presigned_url("get_object",{
+        "Bucket":settings["AudioS3_Name"],
+        "Key":key
+    })
+    return {"rec_id":rec_id, "get_url":get_url}
+
 
 @app.route("/put_job_record_ddb")
 def put_job_record_ddb():
     user_id = session.get('user_id')
     public = session.get("user_share_preference")
+
     location = request.args.get("location")
     task_id = request.args.get("task_id")
     item = {
@@ -246,7 +331,7 @@ def put_job_record_ddb():
         'user_id':{"S":user_id},
         'upload_location':{"S":location},
         'task_id':{"S":task_id},
-        'public':{"BOOL":public},
+        'is_public':{"S":str(public)},
         'timestamp':{"N":f'{time.time()}'},
     }
     ddb_client.put_item(

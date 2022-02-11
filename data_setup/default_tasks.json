@@ -28,17 +28,5 @@
 				"order":4
 			}
 		]
-	},
-	{ 
-		"title":"second default group",
-		"description":"another set of tasks, just to demonstrate that they're being differentiated",
-		"tasks":[
-			{
-				"title":"scream",
-				"description": "scream",
-				"rec_time":8000,
-				"order":2
-			}
-		]
 	}
 ]

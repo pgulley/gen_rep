@@ -73,6 +73,17 @@ ul{
 
 }
 
+.task-btn.user{
+	width: 90%;
+	display: inline-block;
+}
+
+.public_check{
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+
 .task-description{
 	font-family: 'Assistant', sans-serif;
 	margin-bottom: 10px;
@@ -136,6 +147,20 @@ textarea{
 }
 input{
 	display: block;
+}
+
+.user-mgmt{
+	margin-left: 90%;
+
+}
+#logout_link{
+	color: blue;
+	text-decoration: underline
+}
+
+#user_link{
+	color: blue;
+	text-decoration: underline
 }
 
 .login_text{

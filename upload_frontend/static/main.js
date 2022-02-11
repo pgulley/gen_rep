@@ -153,8 +153,7 @@ if($('body').attr('user') == "None"){
 	$('#login_modal').quickModal('open');
 }
 
-function submit_user(email, pref){
-	sharing = ( pref=='on')
+function submit_user(email, sharing){
 	$.ajax({
 		url:get_url("/login"),
 		data:{email:email, sharing:sharing}
@@ -167,12 +166,24 @@ function submit_user(email, pref){
 
 $(document).ready(function(){
 	$("#user-submit").click(function(){
-		submit_user($("#user-email").val(), $("#user-share_default").val())
+		submit_user($("#user-email").val(), $("#user-share_default").is(":checked"))
 	})
 
 	$("#user-anon").click(function(){
 		$('#login_modal').quickModal('open');
 	})
+
+	
+	$("#logout_link").click(function(){
+		$.ajax({
+			url:get_url("/logout")
+		}).done(function(resp){
+			window.location.reload()
+		})
+	})
+
+	$("#user_link").attr('href', get_url("/user"))
+		
 })
 
 

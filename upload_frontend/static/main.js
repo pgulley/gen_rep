@@ -170,7 +170,7 @@ $(document).ready(function(){
 	})
 
 	$("#user-anon").click(function(){
-		$('#login_modal').quickModal('open');
+		submit_user("anonymous", "true")
 	})
 
 	

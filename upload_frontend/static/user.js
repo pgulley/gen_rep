@@ -111,7 +111,7 @@ Vue.component('rec-group',{
 		<div v-bind:id='group.id' class="task-rec">
 
 			<div class="task-group" v-bind:id=group.id>
-			<h2><a :href="'/group/'+group.id">{{ group.title }}</a></h2>
+			<h2><a v-bind:href=href_>{{ group.title }}</a></h2>
 
 			<div class="group-description">
 				{{ group.description}}
@@ -130,7 +130,7 @@ Vue.component('rec-group',{
 		return {
 			group_id:this.group.id,
 			tasklist:this.group.taskslist,
-			href:get_url(`/group/${this.group_id}`)
+			href_:get_url(`/group/${this.group.id}`)
 		}
 	},
 	created:function(){

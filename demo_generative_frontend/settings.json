@@ -2,5 +2,6 @@
 	"AppName":"Generative Repository",
 	"AudioS3_Name":"audio-bucket-lklokan",
 	"AudioDDB_Name":"genrep_audio_ddb_table",
-	"TaskDDB_Name":"genrep_task_ddb_table"
+	"TaskDDB_Name":"genrep_task_ddb_table",
+	"SessionDDB_Name":"session_table"
 }

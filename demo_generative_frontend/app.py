@@ -62,8 +62,8 @@ def get_task_audio():
 		TableName=settings["AudioDDB_Name"],
 		IndexName="task_id",
 		Select="ALL_ATTRIBUTES",
-		KeyConditionExpression="task_id = :id",
-		ExpressionAttributeValues = {":id": {"S":task_id}}
+		KeyConditionExpression="task_id = :id and is_public = :pub",
+		ExpressionAttributeValues = {":id": {"S":task_id}, ":pub":{"S":str(True)}}
 		)
 	items = response["Items"]
 	items = [flatten_ddb(item) for item in items]

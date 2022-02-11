@@ -1,6 +1,7 @@
 all_recs = []
 all_tasks = {}
 vueapp = null
+user_is_anon=false
 
 function get_url(target){
 	stage = $("body").attr("stage")
@@ -61,6 +62,9 @@ Vue.component('rec', {
 		}
 	},
 	mounted:function(){
+		if(user_is_anon){
+			$(`#${this.id}`).find(".public_check").prop('disabled', true)
+		}
 		this.get_recording()
 	}
 })
@@ -189,4 +193,17 @@ get_recs = function(cb){
 	
 }
 
+get_user = function(){
+	$.ajax({
+		url:get_url("/user_detail"),
+		data:{user:$("body").attr("user")}
+	}).done(function(resp){
+		$("#email").append(resp["email"])
+		if(resp["email"]=="anonymous"){
+			user_is_anon = true
+		}
+	})
+}
+
+get_user()
 get_recs(get_groups)

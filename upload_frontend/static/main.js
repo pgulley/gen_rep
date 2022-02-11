@@ -56,9 +56,6 @@ function s3_upload_loop(task_id){
 }
 
 
-
-
-
 Vue.component('rec-task', {
   	props:["task"],
   	template: `<div class="recording-task" v-bind:id=task.id>
@@ -89,7 +86,6 @@ Vue.component('rec-task', {
 	},
 	methods:{
 		record:function(){
-			console.log(this.task.rec_time)
 			mediaRecorder.start()
 			active_task = this.id
 			$(`#${this.id}`).find(".progress.rec-bar").animate({
@@ -122,6 +118,7 @@ Vue.component('rec-task', {
 			})
 		},
 		upload:function(){
+			active_task = this.task.id
 			s3_upload_loop(this.task.id)
 		}
 	}

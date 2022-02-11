@@ -248,6 +248,11 @@ def user():
     else:
         return groups()   
 
+@app.route("/user_detail")
+def user_detail():
+    
+    return {"email":session["user_email"]}
+
 
 @app.route("/user_recs")
 def get_user_recs():

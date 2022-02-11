@@ -163,6 +163,10 @@ input{
 	text-decoration: underline
 }
 
+#user-details{
+	margin-left: 50px;
+}
+
 .login_text{
 	font-family: sans-serif;
 }

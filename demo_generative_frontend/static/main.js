@@ -20,6 +20,12 @@ Vue.component('task-playback-node', {
 			<div>
 				Loop Time (sec): <input class="lt-input" v-bind:id=lt_id  v-on:change=changeTime type="number" v-bind:value=loopTimeDisplay> </input>
 			</div>
+			<div class="gain">
+			<span class="material-icons">
+			volume_up
+			</span>
+			<input type="range" v-bind:id=gain_id v-on:change="gain_change" class="gain_range" min="0" max="2" value=1 step=.01>
+			</div>
 			<div class="play_progress">
 				<div class="play_button">
 					<button class="play_button" v-on:click="toggle_loop" v-bind:class="{isLooping:loop}"> <span class="material-icons"> play_circle</span> </button>
@@ -43,11 +49,24 @@ Vue.component('task-playback-node', {
 		lt_id:function(){
 			return `lt-${this.task.id}`
 		},
+		gain_id:function(){
+			return `gain-${this.task.id}`
+		},
 		loopTimeDisplay:function(){
 			return this.loopTime / 1000
 		}
 	},
 	methods:{
+		gain_change:function(){
+			input_v = $(`#${this.gain_id}`).val()
+			console.log(input_v)
+			output_v = input_v
+			if(input_v > 1){
+				output_v = input_v ** 3
+			}
+			this.gain_node.gain.setValueAtTime(output_v, audioCtx.currentTime)
+		},
+
 		changeTime:function(){
 			v = $(`#${this.lt_id}`).val()
 			console.log(v)
@@ -107,7 +126,7 @@ Vue.component('task-playback-node', {
 		get_audio_source:function(rec_id){
 			//Right now this just connects to a single very simple pipeline- many inputs to one output. 
 			src = audioCtx.createMediaElementSource($(`#${rec_id}`)[0])
-			src.connect(audioCtx.destination) 
+			src.connect(this.gain_node) 
 			srcs.push(src)
 			$(`#${rec_id}`)[0].play()
 
@@ -134,10 +153,12 @@ Vue.component('task-playback-node', {
 	},
 	created:function(){
 		this.update_loop()
-		
+		this.gain_node = audioCtx.createGain()
+		this.gain_node.connect(audioCtx.destination)
 	},
 	mounted:function(){
-		this.pb = new ProgressBar.Circle(`#p-${this.id}`,{
+		
+		this.pb = new ProgressBar.Circle(`#${this.pb_id}`,{
 			strokeWidth: 10,
 			width:"100px",
 			easing: 'linear',

@@ -3,6 +3,7 @@ body{
 }
 
 .task-playback{
+	position: relative;
 	padding: 5px;
 	margin: 10px;
 	width: 190px;
@@ -18,9 +19,39 @@ body{
 }
 
 .task-title{
+	height: 3em;
 	font-family: anton;
 	border-bottom: 1px solid black;
 }
+
+.play_progress{
+	width: 60%;
+	margin: auto;
+	position: relative;
+}
+
+.play_button{
+	position: absolute;
+}
+
+.lt-input{
+	width: 30%;
+}
+
+button.play_button{
+	background: none;
+	border: none;
+}
+
+button.play_button.isLooping{
+	color: green;
+}
+
+.pb_container{
+	margin: auto;
+}
+
+
 
 audio{
 	display: none;

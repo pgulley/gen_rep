@@ -21,7 +21,8 @@ def main():
 		stage=STAGE,
 		style_link=url_for("static", filename="style.css"),
 		js_link=url_for("static", filename="main.js"),
-        vue_link = url_for("static", filename="vue.js")
+        vue_link = url_for("static", filename="vue.js"),
+        pbjs_link = url_for("static", filename="progressbar.js")
 		)
 
 

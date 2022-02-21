@@ -6,14 +6,14 @@
 		"tasks":[
 			{ 
 				"id":"r0M1x9D6", 
-				"title": "Game One", 
+				"title": "Game One: Magnetism and Gravity", 
 				"description":"Follow the rules laid out on the card",
 				"rec_time":10000,
 				"order":1
 			},
 			{ 
 				"id":"Z4m1B0M6", 
-				"title": "Game One (Urge)", 
+				"title": "Game One: Magnetism and Gravity (Urge)", 
 				"description":"You are free to break the rules.",
 				"rec_time":10000,
 				"order":2
@@ -27,14 +27,14 @@
 		"tasks":[
 			{ 
 				"id":"xG7gE14r", 
-				"title": "Game Two", 
+				"title": "Game Two: Tonal Pitch Space", 
 				"description":"Follow the rules laid out on the card",
 				"rec_time":10000,
 				"order":1
 			},
 			{ 
 				"id":"oY61ryrK", 
-				"title": "Game Two(Urge)", 
+				"title": "Game Two: Tonal Pitch Space (Urge)", 
 				"description":"You are free to break the rules",
 				"rec_time":10000,
 				"order":2
@@ -50,70 +50,70 @@
 				"id":"pgX1v256", 
 				"title": "Bubbling", 
 				"description":"A bubbling sound",
-				"rec_time":50000,
+				"rec_time":60000,
 				"order":1
 			},
 			{ 
 				"id":"66zQq9ln", 
 				"title": "Scratching", 
 				"description":"A scratching sound",
-				"rec_time":50000,
+				"rec_time":60000,
 				"order":2
 			},
 			{ 
 				"id":"P15LoQkw",
 				"title": "Static", 
 				"description":"A static sound",
-				"rec_time":50000,
+				"rec_time":60000,
 				"order":3
 			},
 			{ 
 				"id":"lOM1o746", 
 				"title": "Rising", 
 				"description":"A rising sound",
-				"rec_time":50000,
+				"rec_time":60000,
 				"order":4
-			},			
+			},		
 			{ 
 				"id":"1jBLl4nm", 
 				"title": "Hollow", 
 				"description":"A hollow sound",
-				"rec_time":50000,
+				"rec_time":60000,
 				"order":5
 			},
 			{ 
 				"id":"r0M1x9vp", 
 				"title": "Pulsating", 
 				"description":"A pulsating sound",
-				"rec_time":50000,
+				"rec_time":60000,
 				"order":6
 			},
 			{ 
 				"id":"Z4m1B0yQ", 
 				"title": "Blustering", 
 				"description":"A blustering sound",
-				"rec_time":50000,
+				"rec_time":60000,
 				"order":7
 			},
 			{ 
 				"id":"X6kWzr4V",
 				"title": "Creaking", 
 				"description":"A creaking sound",
-				"rec_time":50000,
+				"rec_time":60000,
 				"order":8
 			},
 			{ 
 				"id":"Y6l8AyGW",
 				"title": "Descending", 
-				"description":"A rising sound",
-				"rec_time":50000,
+				"description":"A descending sound",
+				"rec_time":60000,
 				"order":9
 			},
 			{ 
 				"id":"KO5DjL48", 
 				"title": "The Musical Urge Too...", 
 				"description":"A ??? Sound",
-				"rec_time":50000,
+				"rec_time":60000,
 				"order":10
 			}
 		]
@@ -125,14 +125,14 @@
 		"tasks":[
 			{ 
 				"id":"g5Q0jkgY", 
-				"title": "Game Four", 
+				"title": "Game Four: Post-Skip Reversal", 
 				"description":"Follow the rules laid out on the card",
 				"rec_time":10000,
 				"order":1
 			},
 			{ 
 				"id":"98LWw2Kx", 
-				"title": "Game Four (Urge)", 
+				"title": "Game Four: Post-Skip Reversal (Urge)", 
 				"description":"You are free to break the rules",
 				"rec_time":10000,
 				"order":2
@@ -146,14 +146,14 @@
 		"tasks":[
 			{ 
 				"id":"r0M1xEgK", 
-				"title": "Game One", 
+				"title": "Game Five: Tuning Meditation", 
 				"description":"Follow the rules laid out on the card",
 				"rec_time":10000,
 				"order":1
 			},
 			{ 
 				"id":"Rg5NqMMO",
-				"title": "Game One (Urge)", 
+				"title": "Game Five: Tuning Meditation (Urge)", 
 				"description":"You are free to break the rules",
 				"rec_time":10000,
 				"order":2

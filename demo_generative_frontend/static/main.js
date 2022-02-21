@@ -18,22 +18,45 @@ Vue.component('task-playback-node', {
 			<div class="task-title">{{ task.title }}</div> 
 
 			<div>
-				<input v-on:change="loop_state" v-model=loop type="checkbox" id="scales">
-  				<label for="scales">Play Samples</label>
+				Loop Time (sec): <input class="lt-input" v-bind:id=lt_id  v-on:change=changeTime type="number" v-bind:value=loopTimeDisplay> </input>
 			</div>
-			<div>
-				<label for="loop_time"> Loop Time (milliseconds)</label>
-				<input id="loop_time" v-model="loopTime" type="number"> </input>
+			<div class="play_progress">
+				<div class="play_button">
+					<button class="play_button" v-on:click="toggle_loop" v-bind:class="{isLooping:loop}"> <span class="material-icons"> play_circle</span> </button>
+					
+				</div>
+				<div v-bind:id=pb_id class="pb_container"> </div>
 			</div>
 			</div>`,
 	data:function(){
 		return{
 			id:this.task.id,
 			loop: false,
-			loopTime: this.task.rec_time
+			loopTime: this.task.rec_time,
+			
+		}
+	},
+	computed:{
+		pb_id:function(){
+			return `p-${this.task.id}` 
+		},
+		lt_id:function(){
+			return `lt-${this.task.id}`
+		},
+		loopTimeDisplay:function(){
+			return this.loopTime / 1000
 		}
 	},
 	methods:{
+		changeTime:function(){
+			v = $(`#${this.lt_id}`).val()
+			console.log(v)
+			this.loopTime = v * 1000
+		},
+		toggle_loop: function(){
+			this.loop = !this.loop
+			this.loop_state()
+		},
 		update_loop:function(){
 			audio_locations[this.id] = []
 			this.get_recording_meta()
@@ -95,10 +118,15 @@ Vue.component('task-playback-node', {
 			}
 		},
 		play_loop:function(){
-			this.play_random_recording()
-			console.log(this.loopTime)
+			this.pb.set(0)
 			if(this.loop){
-				setTimeout(this.play_loop, this.loopTime)
+				this.play_random_recording()
+				this.pb.animate(1.0, {
+					duration:this.loopTime
+				})
+				if(this.loop){
+					setTimeout(this.play_loop, this.loopTime)
+				}
 			}
 			
 		}
@@ -106,6 +134,18 @@ Vue.component('task-playback-node', {
 	},
 	created:function(){
 		this.update_loop()
+		
+	},
+	mounted:function(){
+		this.pb = new ProgressBar.Circle(`#p-${this.id}`,{
+			strokeWidth: 10,
+			width:"100px",
+			easing: 'linear',
+			color: "#3d3d3d",
+			trailColor: '#eee',
+			trailWidth: 1,
+		})
+		
 	}
 })
 

@@ -176,16 +176,35 @@ input{
 }
 
 @media only screen and (hover: none){
+
+	a{
+		color: black !important;
+	}
+	a:disabled{
+		color: darkgray;
+	}
+
+	button:disabled.btn-text{
+		color: darkgray !important;
+	}
+
 	.recording-task h2{
 		font-size: 3em !important;
 	}
 	.task-description{
 		font-size: 2em;
 	}
+
 	.task-btn{
+		color: black;
 		margin-bottom: .25em;
 		font-size: 6em !important;
 	}
+
+	.task-btn:disabled{
+		color: darkgray;
+	}
+
 	.task-rectime{
 		font-size: 2em;
 	}
@@ -201,6 +220,15 @@ input{
 	.login_form{
 		font-size: 1em;
 	}
+
+	.user-mgmt{
+		margin-left: 0;
+		font-size: 3.5em;
+	}
+
+
+
+
 	#user-email{
 		font-size: 1em;
 	}

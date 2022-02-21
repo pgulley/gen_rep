@@ -172,13 +172,19 @@ def populate_default_tasks(upl = "default"):
 		else:
 			grouphash = hasher.encode(int(time.time()*10 + random.randint(0,100)))
 
+		if("order" in group.keys()):
+			groupOrder = group["order"]
+		else:
+			groupOrder = 0
+
 		item = {
 			'entryType':{"S":"G"},
 			"id":{"S":  grouphash},
 			"description":{"S":group["description"]},
 			'title':{"S":group["title"]},
-			
+			'order':{"N":str(groupOrder)}
 		}
+		
 		resp = client.put_item(
 		    TableName = settings["TaskDDB_Name"],
 		    Item = item
@@ -193,6 +199,7 @@ def populate_default_tasks(upl = "default"):
 				'entryType':{"S":"T"},
 				"taskGroup":{"S":grouphash},
 				"order":{"N":str(task["order"])},
+				"groupOrder":{"N":str(groupOrder)},
 				"id":{"S": taskhash },
 				"description":{"S":task["description"]},
 				'title':{"S":task["title"]},

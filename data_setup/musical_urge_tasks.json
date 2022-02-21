@@ -3,6 +3,7 @@
 		"id":"Y6l8Av8p",
 		"title":"Game One",
 		"description":"Magnetism and Gravity",
+		"order":1,
 		"tasks":[
 			{ 
 				"id":"r0M1x9D6", 
@@ -23,6 +24,7 @@
 	{
 		"id":"GZQ0O8q0",
 		"title":"Game Two",
+		"order":2,
 		"description":"Auditory Interference and Tonal Pitch Space",
 		"tasks":[
 			{ 
@@ -44,6 +46,7 @@
 	{
 		"id":"581PpLGR",
 		"title":"Game Three",
+		"order":0,
 		"description":"Found Sounds, Scavenger Hunt",
 		"tasks":[
 			{ 
@@ -121,6 +124,7 @@
 	{
 		"id":"Lg5EkvEj", 
 		"title":"Game Four",
+		"order":3,
 		"description":"Post-Skip Reversal and Tonal Stability",
 		"tasks":[
 			{ 
@@ -142,6 +146,7 @@
 	{
 		"id":"Lg5EkPqw",
 		"title":"Game Five",
+		"order":4,
 		"description":"Tuning Meditation",
 		"tasks":[
 			{ 

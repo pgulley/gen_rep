@@ -37,7 +37,7 @@ def all_ddb_tasks():
     )
     items = response["Items"]
     items = [flatten_ddb(item) for item in items]
-
+    items = sorted(items, key=lambda x: x["groupOrder"])
     return {"data":items}
 
 

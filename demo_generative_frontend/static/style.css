@@ -2,11 +2,6 @@ body{
 	background:#b9d7ae;
 }
 
-/* the number of 'autos' here determines the number of columns */
-#recording-tasks{
-	display:inline-grid;
-	grid-template-columns: auto auto auto auto auto auto auto auto;
-}
 
 .task-playback{
 	position: relative;

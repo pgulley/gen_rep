@@ -17,13 +17,31 @@ srcs = []
 app = createApp({
 	data(){
 		return {
-			tasklist: []
+			tasklist: [],
+			rows: 7,
+		}
+	},
+	template:`
+	<div id="recording-tasks" :style="styleObject">
+		<task-playback-node
+				 v-for="item in tasklist"
+				 v-bind:task='item'
+				 v-bind:key="item.id">
+				 	
+		</task-playback-node>
+	</div>
+	`,
+	computed:{
+		styleObject() {
+			return {
+			 	"display":"inline-grid",
+			 	"grid-template-columns": "auto ".repeat(this.rows),
+			}
 		}
 	},
 	methods: {
 		async get_tasks(){
 			group_id = $("body").attr('id')
-			console.log(group_id)
 			res = await fetch(
 					get_url(`/all_tasks`), {
 						body: JSON.stringify({group_id:group_id}),
@@ -34,6 +52,7 @@ app = createApp({
 			console.log(json_.data)
 			this.tasklist = json_.data
 		}
+
 	},
 
 	mounted(){
@@ -201,7 +220,7 @@ app.component('task-playback-node', {
 })
 
 
-app.mount("#recording-tasks")
+app.mount("#main")
 
 
 /*

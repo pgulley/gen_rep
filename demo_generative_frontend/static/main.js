@@ -26,7 +26,7 @@ app = createApp({
 	template:`
 	<div class="heading"  tabindex="0">
 		<h1>Ludens 0: Loops</h1>
-		<div class="info"> wasd: select | enter: toggle loop | arrow up/down: volume | m: mute </div> 
+		<div class="info"> wasd: select | enter: toggle loop | arrow up/down: volume | m: mute | #s: edit loop time | l: reset loop time</div> 
 	</div>
 	<div id="recording-tasks" :style="styleObject">
 		<task-playback-node
@@ -62,7 +62,7 @@ app = createApp({
 		},
 
 		navUp(){
-			if(this.selectedTask > this.cols){
+			if(this.selectedTask > this.cols-1){
 				this.selectedTask -= this.cols
 			}
 			
@@ -80,7 +80,10 @@ app = createApp({
 		},
 
 		handleKeydown(event){
-			event.preventDefault()
+			//prevent defaults on anything bound to something with a custom behavior
+			if(["Space", "Enter", "ArrowUp", "ArrowDown", "keyW", "keyA", "keyS", "keyD", "keyL", "keyM"].includes(event.code)){
+				event.preventDefault()
+			}
 			if(event.key == "w"){
 				this.navUp()
 			} else if(event.key == "s"){
@@ -111,7 +114,7 @@ app.component('task-playback-node', {
 			<div class="task-title">{{ task.title }}</div> 
 
 			<div>
-				Loop Time (sec): <input class="lt-input" v-bind:id=lt_id  v-on:change=changeTime type="number" v-bind:value=loopTimeDisplay> </input>
+				Loop Time (sec): <input class="lt-input" v-bind:id=lt_id v-on:change=changeTime type="number" v-bind:value=loopTimeDisplay ref="loopTime"> </input>
 			</div>
 			<div class="gain">
 				<span class="material-icons"> volume_up </span>
@@ -133,6 +136,8 @@ app.component('task-playback-node', {
 			gainValue: 1,
 			gainMin:0,
 			gainMax:2,
+			recentlySelected:false
+			
 		}
 	},
 	computed:{
@@ -147,6 +152,11 @@ app.component('task-playback-node', {
 		},
 		loopTimeDisplay:function(){
 			return this.loopTime / 1000
+		}
+	},
+	watch:{
+		isSelected(newVal, oldVal){
+			this.recentlySelected = newVal
 		}
 	},
 	methods:{
@@ -264,6 +274,21 @@ app.component('task-playback-node', {
 				if(event.key == "m"){
 					this.gainValue = 0 
 					this.onGainChange()
+				}
+
+				//Ideally maybe this would happen the moment you start editing it anew?
+				if(event.key == "l"){
+					this.loopTime = 0
+				}
+				if("1234567890".includes(event.key)){
+					if(this.recentlySelected){
+						this.loopTime = 0
+						this.recentlySelected = false
+					}
+					loopSeconds = String(this.loopTimeDisplay).replace(/^0+/, "")
+					this.loopTime = Number(loopSeconds+event.key) * 1000
+					
+					
 				}
 			}
 

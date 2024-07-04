@@ -26,6 +26,7 @@ app = createApp({
 	template:`
 	<div class="heading"  tabindex="0">
 		<h1>Ludens 0: Loops</h1>
+		<div class="info"> wasd: select | enter: toggle loop | arrow up/down: volume | m: mute </div> 
 	</div>
 	<div id="recording-tasks" :style="styleObject">
 		<task-playback-node
@@ -79,7 +80,7 @@ app = createApp({
 		},
 
 		handleKeydown(event){
-			console.log("keydown!!")
+			event.preventDefault()
 			if(event.key == "w"){
 				this.navUp()
 			} else if(event.key == "s"){
@@ -113,10 +114,8 @@ app.component('task-playback-node', {
 				Loop Time (sec): <input class="lt-input" v-bind:id=lt_id  v-on:change=changeTime type="number" v-bind:value=loopTimeDisplay> </input>
 			</div>
 			<div class="gain">
-			<span class="material-icons">
-			volume_up
-			</span>
-			<input type="range" v-bind:id=gain_id v-on:change="gain_change" class="gain_range" min="0" max="2" value=1 step=.01>
+				<span class="material-icons"> volume_up </span>
+				<input type="range" class="gain_range" v-model="gainValue" v-bind:min="gainMin" v-bind:max="gainMax" step=0.01 v-on:change="onGainChange">
 			</div>
 			<div class="play_progress">
 				<div class="play_button">
@@ -131,7 +130,9 @@ app.component('task-playback-node', {
 			id:this.task.id,
 			loop: false,
 			loopTime: this.task.rec_time,
-			
+			gainValue: 1,
+			gainMin:0,
+			gainMax:2,
 		}
 	},
 	computed:{
@@ -149,9 +150,8 @@ app.component('task-playback-node', {
 		}
 	},
 	methods:{
-		gain_change:function(){
-			input_v = $(`#${this.gain_id}`).val()
-			console.log(input_v)
+		onGainChange:function(){
+			input_v = this.gainValue
 			output_v = input_v
 			if(input_v > 1){
 				output_v = input_v ** 3
@@ -226,7 +226,6 @@ app.component('task-playback-node', {
 			src.connect(this.gain_node) 
 			srcs.push(src)
 			$(`#${rec_id}`)[0].play()
-
 		},
 
 		loop_state(){
@@ -247,12 +246,24 @@ app.component('task-playback-node', {
 				}
 			}	
 		},
+
 		handleKeydown(event){
 			
 			if(this.isSelected){
 				if(event.code == "Enter"){
-					//console.log
 					this.toggle_loop()
+				}
+				if(event.code == "ArrowUp"){
+					this.gainValue = Math.min(this.gainValue + .1, this.gainMax)
+					this.onGainChange()
+				}
+				if(event.code == "ArrowDown"){
+					this.gainValue = Math.max(this.gainValue - .1, this.gainMin)
+					this.onGainChange()
+				}
+				if(event.key == "m"){
+					this.gainValue = 0 
+					this.onGainChange()
 				}
 			}
 

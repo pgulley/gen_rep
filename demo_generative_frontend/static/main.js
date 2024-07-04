@@ -18,27 +18,35 @@ app = createApp({
 	data(){
 		return {
 			tasklist: [],
-			rows: 7,
+			cols: 7,
+			selectedTask: 0,
 		}
 	},
+
 	template:`
+	<div class="heading"  tabindex="0">
+		<h1>Ludens 0: Loops</h1>
+	</div>
 	<div id="recording-tasks" :style="styleObject">
 		<task-playback-node
-				 v-for="item in tasklist"
+				 v-for="(item, index) in tasklist"
 				 v-bind:task='item'
-				 v-bind:key="item.id">
+				 v-bind:key="index"
+				 :is-selected="selectedTask === index">
 				 	
 		</task-playback-node>
 	</div>
 	`,
+
 	computed:{
 		styleObject() {
 			return {
 			 	"display":"inline-grid",
-			 	"grid-template-columns": "auto ".repeat(this.rows),
+			 	"grid-template-columns": "auto ".repeat(this.cols),
 			}
 		}
 	},
+
 	methods: {
 		async get_tasks(){
 			group_id = $("body").attr('id')
@@ -49,21 +57,56 @@ app = createApp({
 					})
 
 			json_ = await res.json()
-			console.log(json_.data)
 			this.tasklist = json_.data
-		}
+		},
+
+		navUp(){
+			if(this.selectedTask > this.cols){
+				this.selectedTask -= this.cols
+			}
+			
+		},
+		navDown(){
+			if(this.selectedTask <= this.tasklist.length){
+				this.selectedTask += this.cols
+			}	
+		},
+		navLeft(){
+			this.selectedTask -= 1
+		},
+		navRight(){
+			this.selectedTask += 1
+		},
+
+		handleKeydown(event){
+			console.log("keydown!!")
+			if(event.key == "w"){
+				this.navUp()
+			} else if(event.key == "s"){
+				this.navDown()
+			} else if(event.key == "a"){
+				this.navLeft()
+			} else if( event.key == "d"){
+				this.navRight()
+			}
+
+		},
 
 	},
 
+	
+
 	mounted(){
 		this.get_tasks()
+
+		window.addEventListener('keydown', this.handleKeydown);
 	}
 })
 
 
 app.component('task-playback-node', {
-	props:["task"],
-	template:`<div class="task-playback"> 
+	props:["task", "isSelected"],
+	template:`<div class="task-playback" :class="{ 'selected': isSelected }"> 
 			<div class="task-title">{{ task.title }}</div> 
 
 			<div>
@@ -121,16 +164,19 @@ app.component('task-playback-node', {
 			console.log(v)
 			this.loopTime = v * 1000
 		},
+
 		toggle_loop: function(){
 			this.loop = !this.loop
 			this.loop_state()
 		},
+
 		update_loop:function(){
 			audio_locations[this.id] = []
 			this.get_recording_meta()
 			//get the metadata fresh every 10 minutes. 
 			setTimeout(this.get_recording_meta, 1000 * 60 * 10)
 		},
+
 		get_recording_meta:function(){
 			$.ajax({
 				url:get_url("/get_task_audio"),
@@ -147,6 +193,7 @@ app.component('task-playback-node', {
 				}
 			})
 		},
+
 		play_random_recording:function(){	
 			if(audio_locations[this.id].length > 0){
 				random_id = audio_locations[this.id][Math.floor(Math.random() * audio_locations[this.id].length)]
@@ -155,10 +202,10 @@ app.component('task-playback-node', {
 				}
 				else{
 					$(`#${random_id}`)[0].play()
-				}
-				
+				}	
 			}
 		},
+
 		get_recording:function(rec_id){
 			vm = this
 			$.ajax({
@@ -172,6 +219,7 @@ app.component('task-playback-node', {
 				
 			})
 		},
+
 		get_audio_source:function(rec_id){
 			//Right now this just connects to a single very simple pipeline- many inputs to one output. 
 			src = audioCtx.createMediaElementSource($(`#${rec_id}`)[0])
@@ -180,11 +228,13 @@ app.component('task-playback-node', {
 			$(`#${rec_id}`)[0].play()
 
 		},
+
 		loop_state(){
 			if(this.loop){
 				this.play_loop()
 			}
 		},
+
 		play_loop:function(){
 			this.pb.set(0)
 			if(this.loop){
@@ -195,18 +245,29 @@ app.component('task-playback-node', {
 				if(this.loop){
 					setTimeout(this.play_loop, this.loopTime)
 				}
-			}
+			}	
+		},
+		handleKeydown(event){
 			
+			if(this.isSelected){
+				if(event.code == "Enter"){
+					//console.log
+					this.toggle_loop()
+				}
+			}
+
 		}
 
 	},
+
 	created:function(){
 		this.update_loop()
 		this.gain_node = audioCtx.createGain()
 		this.gain_node.connect(audioCtx.destination)
 	},
+
 	mounted:function(){
-		
+		window.addEventListener('keydown', this.handleKeydown);
 		this.pb = new ProgressBar.Circle(`#${this.pb_id}`,{
 			strokeWidth: 10,
 			width:"100px",
@@ -221,23 +282,3 @@ app.component('task-playback-node', {
 
 
 app.mount("#main")
-
-
-/*
-get_tasks = function(){
-	group_id = $("body").attr('id')
-	$.ajax({
-		url:get_url(`/all_tasks`),
-		data:{group_id:group_id}
-	}).done(function(resp){
-
-		var app1 = new Vue({
-			el:"#recording-tasks",
-			data:{
-			tasklist:resp.data
-			}
-		})
-		vueapp = app1
-	})
-}
-get_tasks()*/

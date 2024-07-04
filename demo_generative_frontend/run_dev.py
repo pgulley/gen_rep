@@ -4,4 +4,4 @@ import app, shutil
 
 shutil.copy("../settings.json", "./settings.json")
 print("Updated local settings")
-app.app.run()
+app.app.run(debug=True)

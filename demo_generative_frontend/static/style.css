@@ -2,6 +2,12 @@ body{
 	background:#b9d7ae;
 }
 
+/* the number of 'autos' here determines the number of columns */
+#recording-tasks{
+	display:inline-grid;
+	grid-template-columns: auto auto auto auto auto auto auto auto;
+}
+
 .task-playback{
 	position: relative;
 	padding: 5px;
@@ -10,6 +16,10 @@ body{
 	height: 260px;
 	border: 4px solid black;
 	display: inline-block;
+}
+
+.task-playback.selected{
+	background-color: #8dcab3;
 }
 
 .heading{

@@ -1,3 +1,4 @@
+const { createApp, ref } = Vue
 
 function get_url(target){
 	stage = $("body").attr("stage")
@@ -12,7 +13,36 @@ var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 audio_locations = {}
 srcs = []
 
-Vue.component('task-playback-node', {
+//Add root vue app for cursor and keyboard input management. 
+app = createApp({
+	data(){
+		return {
+			tasklist: []
+		}
+	},
+	methods: {
+		async get_tasks(){
+			group_id = $("body").attr('id')
+			console.log(group_id)
+			res = await fetch(
+					get_url(`/all_tasks`), {
+						body: JSON.stringify({group_id:group_id}),
+						method: "post"
+					})
+
+			json_ = await res.json()
+			console.log(json_.data)
+			this.tasklist = json_.data
+		}
+	},
+
+	mounted(){
+		this.get_tasks()
+	}
+})
+
+
+app.component('task-playback-node', {
 	props:["task"],
 	template:`<div class="task-playback"> 
 			<div class="task-title">{{ task.title }}</div> 
@@ -171,6 +201,10 @@ Vue.component('task-playback-node', {
 })
 
 
+app.mount("#recording-tasks")
+
+
+/*
 get_tasks = function(){
 	group_id = $("body").attr('id')
 	$.ajax({
@@ -187,4 +221,4 @@ get_tasks = function(){
 		vueapp = app1
 	})
 }
-get_tasks()
+get_tasks()*/

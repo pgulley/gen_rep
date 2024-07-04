@@ -21,12 +21,11 @@ def main():
 		stage=STAGE,
 		style_link=url_for("static", filename="style.css"),
 		js_link=url_for("static", filename="main.js"),
-        vue_link = url_for("static", filename="vue.js"),
         pbjs_link = url_for("static", filename="progressbar.js")
 		)
 
 
-@app.route("/all_tasks")
+@app.route("/all_tasks", methods=['GET', 'POST'])
 def all_ddb_tasks():
     response = ddb_client.query(
         TableName = settings["TaskDDB_Name"],
@@ -41,7 +40,7 @@ def all_ddb_tasks():
     return {"data":items}
 
 
-@app.route("/group_tasks")
+@app.route("/group_tasks",methods=['GET', 'POST'])
 def ddb_group_tasks():
     group_id = request.args.get("group_id")
     response = ddb_client.query(
@@ -56,7 +55,7 @@ def ddb_group_tasks():
 
     return {"data":items, "group_id":group_id}
 
-@app.route("/get_task_audio")
+@app.route("/get_task_audio",methods=['GET', 'POST'])
 def get_task_audio():
 	task_id = request.args.get("task_id")
 	response = ddb_client.query(
@@ -71,7 +70,7 @@ def get_task_audio():
 	return {"data":items}
 
 
-@app.route("/get_signed_s3_url")
+@app.route("/get_signed_s3_url", methods=['GET', 'POST'])
 def get_s3_download_url():
 	rec_id = request.args.get("rec_id")
 	rec = ddb_client.get_item(

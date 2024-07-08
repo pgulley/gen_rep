@@ -3,6 +3,7 @@ body{
 }
 
 .task-playback{
+	background-color: #cac38d;
 	position: relative;
 	padding: 5px;
 	border: 4px solid black;
@@ -10,7 +11,17 @@ body{
 }
 
 .task-playback.selected{
-	background-color: #8dcab3;
+	background-color: #8da5ca;
+}
+
+.task-playback.playing{
+	background-color:  #8ac89c ;
+	border-color: green;
+}
+
+.task-playback.playing.selected{
+	background-color: #8da5ca;
+	border-color: green;
 }
 
 .heading{

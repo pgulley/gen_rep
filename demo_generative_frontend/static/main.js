@@ -107,7 +107,7 @@ app = createApp({
 
 app.component('task-playback-node', {
 	props:["task", "isSelected", "cols"],
-	template:`<div class="task-playback" :class="{ 'selected': isSelected }"> 
+	template:`<div class="task-playback" :class="{ 'selected': isSelected, 'playing': isPlaying}"> 
 			<div class="task-title">{{ task.title }}</div> 
 
 			<div>
@@ -134,7 +134,8 @@ app.component('task-playback-node', {
 			gainValue: 1,
 			gainMin:0,
 			gainMax:2,
-			recentlySelected:false
+			recentlySelected:false,
+			isPlaying:false
 			
 		}
 	},
@@ -250,6 +251,24 @@ app.component('task-playback-node', {
 			}
 		},
 
+		checkIsPlaying(){
+			//This loop checks all the loaded audio contexts for this task to see if 
+			//any of them are playing by checking if they are or aren't paused. 
+			checked = false
+			for(audio_source of audio_locations[this.id]){
+				if($(`#${audio_source}`).length != 0){
+					if(! $(`#${audio_source}`)[0].paused ){
+						this.isPlaying = true
+						checked = true
+					}
+				}
+			}
+			if(!checked){
+				this.isPlaying = false
+			}
+			setTimeout(this.checkIsPlaying, 1000);
+		},
+
 		play_loop:function(){
 			this.pb.set(0)
 			if(this.loop){
@@ -318,6 +337,7 @@ app.component('task-playback-node', {
 			trailColor: '#eee',
 			trailWidth: 1,
 		})
+		this.checkIsPlaying()
 		
 	}
 })

@@ -247,6 +247,7 @@ app.component('task-playback-node', {
 
 		loop_state(){
 			if(this.loop){
+				this.isPlaying = true
 				this.play_loop()
 			}
 		},

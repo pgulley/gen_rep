@@ -33,6 +33,7 @@ app = createApp({
 				 v-for="(item, index) in tasklist"
 				 v-bind:task='item'
 				 v-bind:key="index"
+				 :cols=cols
 				 :is-selected="selectedTask === index">
 				 	
 		</task-playback-node>
@@ -40,12 +41,14 @@ app = createApp({
 	`,
 
 	computed:{
-		styleObject() {
+		styleObject: function() {
 			return {
 			 	"display":"inline-grid",
 			 	"grid-template-columns": "auto ".repeat(this.cols),
+			 	"column-gap":"10px",
+			 	"row-gap":"10px"
 			}
-		}
+		},
 	},
 
 	methods: {
@@ -65,7 +68,6 @@ app = createApp({
 			if(this.selectedTask > this.cols-1){
 				this.selectedTask -= this.cols
 			}
-			
 		},
 		navDown(){
 			if(this.selectedTask <= this.tasklist.length){
@@ -93,23 +95,18 @@ app = createApp({
 			} else if( event.key == "d"){
 				this.navRight()
 			}
-
 		},
-
 	},
-
-	
 
 	mounted(){
 		this.get_tasks()
-
 		window.addEventListener('keydown', this.handleKeydown);
 	}
 })
 
 
 app.component('task-playback-node', {
-	props:["task", "isSelected"],
+	props:["task", "isSelected", "cols"],
 	template:`<div class="task-playback" :class="{ 'selected': isSelected }"> 
 			<div class="task-title">{{ task.title }}</div> 
 
@@ -128,6 +125,7 @@ app.component('task-playback-node', {
 				<div v-bind:id=pb_id class="pb_container"> </div>
 			</div>
 			</div>`,
+
 	data:function(){
 		return{
 			id:this.task.id,
@@ -140,6 +138,7 @@ app.component('task-playback-node', {
 			
 		}
 	},
+
 	computed:{
 		pb_id:function(){
 			return `p-${this.task.id}` 
@@ -152,7 +151,14 @@ app.component('task-playback-node', {
 		},
 		loopTimeDisplay:function(){
 			return this.loopTime / 1000
+		},
+
+		styleObject: function() {
+			return {
+			 	"width":String(90 / this.cols) + "%"
+			}
 		}
+	
 	},
 	watch:{
 		isSelected(newVal, oldVal){

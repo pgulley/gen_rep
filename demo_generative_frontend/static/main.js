@@ -26,7 +26,7 @@ app = createApp({
 	template:`
 	<div class="heading"  tabindex="0">
 		<h1>Ludens 0: Loops</h1>
-		<div class="info"> wasd: select | enter: toggle loop | arrow up/down: volume | m: mute | #s: edit loop time | l: reset loop time</div> 
+		<div class="info"> wasd: select | enter: toggle loop | arrow up/down: volume | arrow l/r: pan l/r | m: mute task | #s: edit loop time | l: reset loop time </div> 
 	</div>
 	<div id="recording-tasks" :style="styleObject">
 		<task-playback-node
@@ -45,8 +45,8 @@ app = createApp({
 			return {
 			 	"display":"inline-grid",
 			 	"grid-template-columns": "auto ".repeat(this.cols),
-			 	"column-gap":"10px",
-			 	"row-gap":"10px"
+			 	"column-gap":"5px",
+			 	"row-gap":"5px"
 			}
 		},
 	},
@@ -104,7 +104,6 @@ app = createApp({
 	}
 })
 
-
 app.component('task-playback-node', {
 	props:["task", "isSelected", "cols"],
 	template:`<div class="task-playback" :class="{ 'selected': isSelected, 'playing': isPlaying}"> 
@@ -119,6 +118,7 @@ app.component('task-playback-node', {
 					<div v-else class="material-icons"> volume_up </div>
 				</span>
 				<input type="range" class="gain_range" v-model="gainValue" v-bind:min="gainMin" v-bind:max="gainMax" step=0.01 v-on:change="onGainChange">
+				
 			</div>
 			<div class="play_progress">
 				<div class="play_button">
@@ -126,6 +126,9 @@ app.component('task-playback-node', {
 					
 				</div>
 				<div v-bind:id=pb_id class="pb_container"> </div>
+			</div>
+			<div class="panInput">
+			<input type="range" class="pan_range" v-model="panValue" min=-1 max=1 step=.1 v-on:change="onPanChange">
 			</div>
 			</div>`,
 
@@ -139,7 +142,8 @@ app.component('task-playback-node', {
 			gainMax:2,
 			recentlySelected:false,
 			isPlaying:false,
-			isMuted:false
+			isMuted:false,
+			panValue:0
 		}
 	},
 
@@ -164,7 +168,7 @@ app.component('task-playback-node', {
 		}
 	
 	},
-	watch:{
+	watch:{ 
 		isSelected(newVal, oldVal){
 			this.recentlySelected = newVal
 		}
@@ -182,6 +186,11 @@ app.component('task-playback-node', {
 		toggleMute:function(){
 			this.isMuted = !this.isMuted
 			this.mute_node.gain.setValueAtTime(this.isMuted ? 0 : 1, audioCtx.currentTime)
+		},
+
+		onPanChange:function(){
+			this.pan_node.pan.setValueAtTime(this.panValue, audioCtx.currentTime)
+			
 		},
 
 		changeTime:function(){
@@ -309,6 +318,21 @@ app.component('task-playback-node', {
 					this.toggleMute()
 				}
 
+				if(event.code=="ArrowLeft"){
+					if(this.panValue > -.9){
+						this.panValue -= .1
+						this.onPanChange()
+					}
+
+				}
+
+				if(event.code=="ArrowRight"){
+					if(this.panValue < .9){
+						this.panValue += .1
+						this.onPanChange()
+					}
+				}
+
 				//Ideally maybe this would happen the moment you start editing it anew?
 				if(event.key == "l"){
 					this.loopTime = 0
@@ -330,10 +354,15 @@ app.component('task-playback-node', {
 	},
 
 	created:function(){
+		//This is where we setup the audiocontext per-task!
+		//Each component looks like source->gain->pan->mute
 		this.update_loop()
 		this.gain_node = audioCtx.createGain()
+		this.pan_node = audioCtx.createStereoPanner()
 		this.mute_node = audioCtx.createGain()
-		this.gain_node.connect(this.mute_node)
+
+		this.gain_node.connect(this.pan_node)
+		this.pan_node.connect(this.mute_node)
 		this.mute_node.connect(audioCtx.destination)
 	},
 

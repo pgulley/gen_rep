@@ -20,13 +20,20 @@ app = createApp({
 			tasklist: [],
 			cols: 7,
 			selectedTask: 0,
+			isGlobalMuted:false,
+			isStopped:false
 		}
 	},
 
 	template:`
 	<div class="heading"  tabindex="0">
-		<h1>Ludens 0: Loops</h1>
-		<div class="info"> wasd: select | enter: toggle loop | arrow up/down: volume | arrow l/r: pan l/r | m: mute task | #s: edit loop time | l: reset loop time </div> 
+		<h1>Ludens 0: Loops 				
+				<span @click="this.toggleGlobalMute()">
+					<div v-if="isGlobalMuted" class="material-icons"> volume_off </div>
+					<div v-else class="material-icons"> volume_up </div>
+				</span>
+		</h1>
+		<div class="info"> wasd: select | enter: toggle loop | arrow up/down: volume | arrow l/r: pan l/r | m: mute task | space: global mute | #s: edit loop time | l: reset loop time | esc: stop loops </div> 
 	</div>
 	<div id="recording-tasks" :style="styleObject">
 		<task-playback-node
@@ -34,7 +41,9 @@ app = createApp({
 				 v-bind:task='item'
 				 v-bind:key="index"
 				 :cols=cols
-				 :is-selected="selectedTask === index">
+				 :is-selected="selectedTask === index"
+				 :globalctx=global_mute_node
+				 :is-stopped="isStopped">
 				 	
 		</task-playback-node>
 	</div>
@@ -52,6 +61,7 @@ app = createApp({
 	},
 
 	methods: {
+
 		async get_tasks(){
 			group_id = $("body").attr('id')
 			res = await fetch(
@@ -81,6 +91,11 @@ app = createApp({
 			this.selectedTask += 1
 		},
 
+		toggleGlobalMute(){
+			this.isGlobalMuted = !this.isGlobalMuted
+			this.global_mute_node.gain.setValueAtTime(this.isGlobalMuted ? 0 : 1, audioCtx.currentTime)
+		},
+
 		handleKeydown(event){
 			//prevent defaults on anything bound to something with a custom behavior
 			if(["Space", "Enter", "ArrowUp", "ArrowDown", "keyW", "keyA", "keyS", "keyD", "keyL", "keyM"].includes(event.code)){
@@ -94,8 +109,19 @@ app = createApp({
 				this.navLeft()
 			} else if( event.key == "d"){
 				this.navRight()
+			} else if (event.code == "Space"){
+				this.toggleGlobalMute()
+			} else if (event.code == "Escape"){
+				//We only watch for /change/ of this value, so toggling the bool is fine. 
+				this.isStopped = !this.isStopped
 			}
+
 		},
+	},
+
+	created(){
+		this.global_mute_node = audioCtx.createGain()
+		this.global_mute_node.connect(audioCtx.destination) 
 	},
 
 	mounted(){
@@ -105,7 +131,7 @@ app = createApp({
 })
 
 app.component('task-playback-node', {
-	props:["task", "isSelected", "cols"],
+	props:["task", "isSelected", "cols", "globalctx", "isStopped"],
 	template:`<div class="task-playback" :class="{ 'selected': isSelected, 'playing': isPlaying}"> 
 			<div class="task-title">{{ task.title }}</div> 
 
@@ -122,7 +148,7 @@ app.component('task-playback-node', {
 			</div>
 			<div class="play_progress">
 				<div class="play_button">
-					<button class="play_button" v-on:click="toggle_loop" v-bind:class="{isLooping:loop}"> <span class="material-icons"> play_circle</span> </button>
+					<button class="play_button" v-on:click="toggleLoop" v-bind:class="{isLooping:loop}"> <span class="material-icons"> play_circle</span> </button>
 					
 				</div>
 				<div v-bind:id=pb_id class="pb_container"> </div>
@@ -171,6 +197,10 @@ app.component('task-playback-node', {
 	watch:{ 
 		isSelected(newVal, oldVal){
 			this.recentlySelected = newVal
+		},
+		isStopped(newVal, oldVal){
+			this.loop = false
+			
 		}
 	},
 	methods:{
@@ -199,19 +229,22 @@ app.component('task-playback-node', {
 			this.loopTime = v * 1000
 		},
 
-		toggle_loop: function(){
+		toggleLoop: function(){
 			this.loop = !this.loop
-			this.loop_state()
+			if(this.loop){
+				this.isPlaying = true
+				this.playLoop()
+			}
 		},
 
-		update_loop:function(){
+		updateLoop:function(){
 			audio_locations[this.id] = []
-			this.get_recording_meta()
+			this.getRecordingMeta()
 			//get the metadata fresh every 10 minutes. 
-			setTimeout(this.get_recording_meta, 1000 * 60 * 10)
+			setTimeout(this.getRecordingMeta, 1000 * 60 * 10)
 		},
 
-		get_recording_meta:function(){
+		getRecordingMeta:function(){
 			$.ajax({
 				url:get_url("/get_task_audio"),
 				data:{task_id:this.id}
@@ -222,8 +255,6 @@ app.component('task-playback-node', {
 						rec = resp.data[rec]
 						audio_locations[task_id].push( rec._id )
 					}
-					
-					
 				}
 			})
 		},
@@ -232,7 +263,7 @@ app.component('task-playback-node', {
 			if(audio_locations[this.id].length > 0){
 				random_id = audio_locations[this.id][Math.floor(Math.random() * audio_locations[this.id].length)]
 				if($(`#${random_id}`).length == 0){
-					this.get_recording(random_id)
+					this.getRecording(random_id)
 				}
 				else{
 					$(`#${random_id}`)[0].play()
@@ -240,7 +271,7 @@ app.component('task-playback-node', {
 			}
 		},
 
-		get_recording:function(rec_id){
+		getRecording:function(rec_id){
 			vm = this
 			$.ajax({
 				url:get_url("/get_signed_s3_url"),
@@ -249,24 +280,17 @@ app.component('task-playback-node', {
 				aud = document.createElement("audio")
 				audio_element = `<audio src=${resp.get_url} type="audio/wav" crossorigin="anonymous" id=${resp.rec_id}>`
 				$("body").append(audio_element)
-				vm.get_audio_source(rec_id)
+				vm.getAudioSource(rec_id)
 				
 			})
 		},
 
-		get_audio_source:function(rec_id){
-			//Right now this just connects to a single very simple pipeline- many inputs to one output. 
+		getAudioSource:function(rec_id){
+			//Finds the audio element storing the relevant audio data
 			src = audioCtx.createMediaElementSource($(`#${rec_id}`)[0])
 			src.connect(this.gain_node) 
 			srcs.push(src)
 			$(`#${rec_id}`)[0].play()
-		},
-
-		loop_state(){
-			if(this.loop){
-				this.isPlaying = true
-				this.play_loop()
-			}
 		},
 
 		checkIsPlaying(){
@@ -287,7 +311,7 @@ app.component('task-playback-node', {
 			setTimeout(this.checkIsPlaying, 1000);
 		},
 
-		play_loop:function(){
+		playLoop:function(){
 			this.pb.set(0)
 			if(this.loop){
 				this.play_random_recording()
@@ -295,7 +319,7 @@ app.component('task-playback-node', {
 					duration:this.loopTime
 				})
 				if(this.loop){
-					setTimeout(this.play_loop, this.loopTime)
+					setTimeout(this.playLoop, this.loopTime)
 				}
 			}	
 		},
@@ -304,66 +328,50 @@ app.component('task-playback-node', {
 			
 			if(this.isSelected){
 				if(event.code == "Enter"){
-					this.toggle_loop()
-				}
-				if(event.code == "ArrowUp"){
+					this.toggleLoop()
+				} else if(event.code == "ArrowUp"){
 					this.gainValue = Math.min(this.gainValue + .1, this.gainMax)
 					this.onGainChange()
-				}
-				if(event.code == "ArrowDown"){
+				} else if(event.code == "ArrowDown"){
 					this.gainValue = Math.max(this.gainValue - .1, this.gainMin)
 					this.onGainChange()
-				}
-				if(event.key == "m"){
+				} else if(event.key == "m"){
 					this.toggleMute()
-				}
-
-				if(event.code=="ArrowLeft"){
+				} else if(event.code=="ArrowLeft"){
 					if(this.panValue > -.9){
 						this.panValue -= .1
 						this.onPanChange()
 					}
-
-				}
-
-				if(event.code=="ArrowRight"){
+				} else if(event.code=="ArrowRight"){
 					if(this.panValue < .9){
 						this.panValue += .1
 						this.onPanChange()
 					}
-				}
-
-				//Ideally maybe this would happen the moment you start editing it anew?
-				if(event.key == "l"){
+				} else if(event.key == "l"){
 					this.loopTime = 0
-				}
-				if("1234567890".includes(event.key)){
+				} else if("1234567890".includes(event.key)){
 					if(this.recentlySelected){
 						this.loopTime = 0
 						this.recentlySelected = false
 					}
 					loopSeconds = String(this.loopTimeDisplay).replace(/^0+/, "")
 					this.loopTime = Number(loopSeconds+event.key) * 1000
-					
-					
 				}
 			}
-
 		}
-
 	},
 
 	created:function(){
 		//This is where we setup the audiocontext per-task!
 		//Each component looks like source->gain->pan->mute
-		this.update_loop()
+		this.updateLoop()
 		this.gain_node = audioCtx.createGain()
 		this.pan_node = audioCtx.createStereoPanner()
 		this.mute_node = audioCtx.createGain()
 
 		this.gain_node.connect(this.pan_node)
 		this.pan_node.connect(this.mute_node)
-		this.mute_node.connect(audioCtx.destination)
+		this.mute_node.connect(this.globalctx)
 	},
 
 	mounted:function(){

@@ -1,5 +1,6 @@
 body{
 	background:#b9d7ae;
+	margin-top:0;
 }
 
 .task-playback{
@@ -26,7 +27,7 @@ body{
 
 .heading{
 	font-family: anton;
-	padding-left: 50px;
+
 	border-bottom: 2px solid black;
 	margin-bottom:4px;
 }
@@ -121,10 +122,10 @@ audio{
 }
 
 h1{
-	width:25%;
+	width:20%;
 	display:inline-block;
 	margin-bottom:0;
-	margin-top:5px;
+	margin-top:0;
 }
 
 .info{

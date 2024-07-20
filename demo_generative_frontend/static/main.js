@@ -114,7 +114,10 @@ app.component('task-playback-node', {
 				Loop Time (sec): <input class="lt-input" v-bind:id=lt_id v-on:change=changeTime type="number" v-bind:value=loopTimeDisplay ref="loopTime"> </input>
 			</div>
 			<div class="gain">
-				<span class="material-icons"> volume_up </span>
+				<span @click="this.toggleMute()">
+					<div v-if="isMuted" class="material-icons"> volume_off </div>
+					<div v-else class="material-icons"> volume_up </div>
+				</span>
 				<input type="range" class="gain_range" v-model="gainValue" v-bind:min="gainMin" v-bind:max="gainMax" step=0.01 v-on:change="onGainChange">
 			</div>
 			<div class="play_progress">
@@ -135,8 +138,8 @@ app.component('task-playback-node', {
 			gainMin:0,
 			gainMax:2,
 			recentlySelected:false,
-			isPlaying:false
-			
+			isPlaying:false,
+			isMuted:false
 		}
 	},
 
@@ -174,6 +177,11 @@ app.component('task-playback-node', {
 				output_v = input_v ** 3
 			}
 			this.gain_node.gain.setValueAtTime(output_v, audioCtx.currentTime)
+		},
+
+		toggleMute:function(){
+			this.isMuted = !this.isMuted
+			this.mute_node.gain.setValueAtTime(this.isMuted ? 0 : 1, audioCtx.currentTime)
 		},
 
 		changeTime:function(){
@@ -298,8 +306,7 @@ app.component('task-playback-node', {
 					this.onGainChange()
 				}
 				if(event.key == "m"){
-					this.gainValue = 0 
-					this.onGainChange()
+					this.toggleMute()
 				}
 
 				//Ideally maybe this would happen the moment you start editing it anew?
@@ -325,7 +332,9 @@ app.component('task-playback-node', {
 	created:function(){
 		this.update_loop()
 		this.gain_node = audioCtx.createGain()
-		this.gain_node.connect(audioCtx.destination)
+		this.mute_node = audioCtx.createGain()
+		this.gain_node.connect(this.mute_node)
+		this.mute_node.connect(audioCtx.destination)
 	},
 
 	mounted:function(){
